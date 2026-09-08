@@ -1,0 +1,10 @@
+# plew-map calibration for africa-basemap.png
+# style: carto-light  size: 2821x2729 px
+L (left / west):  -20.0
+R (right / east): 42.0
+T (top / north):  22.0
+B (bottom / south): -35.0
+Mercator Y: ON (required for Web Mercator tile maps)
+
+Load in plew-map: drop this PNG + CSV/audio bundle.
+Calibration → Image edges → L/R/T/B → check Mercator → Apply.

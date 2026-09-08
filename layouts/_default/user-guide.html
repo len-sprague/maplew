@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ .Title }} — plew-map</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Segoe UI', system-ui, sans-serif; background:#0f1419; color:#e8e8e8; line-height:1.55; }
+.page-header { background:#1a1f26; border-bottom:1px solid #2d3640; padding:32px 40px; }
+.back-link { display:inline-block; margin-bottom:16px; color:#4ecdc4; text-decoration:none; font-size:13px; }
+.page-header h1 { font-size:26px; margin-bottom:8px; }
+.wrap { max-width:760px; margin:0 auto; padding:40px 24px 80px; }
+.wrap h1 { font-size:1.6rem; margin:1.6em 0 0.5em; }
+.wrap h2 { font-size:1.15rem; color:#4ecdc4; margin:1.6em 0 0.5em; }
+.wrap h3 { font-size:1rem; margin:1.2em 0 0.4em; }
+.wrap p, .wrap li { color:#cfd6dd; font-size:0.92rem; }
+.wrap ul, .wrap ol { padding-left:1.3em; margin:0.5em 0 1em; }
+.wrap table { width:100%; border-collapse:collapse; font-size:0.85rem; margin:0.8em 0 1.2em; }
+.wrap th, .wrap td { border:1px solid #2d3640; padding:6px 8px; text-align:left; }
+.wrap th { background:#1a1f26; color:#9aa5b0; }
+.wrap code { background:#1a1f26; padding:1px 5px; border-radius:4px; font-size:0.85em; }
+.wrap pre { background:#1a1f26; border:1px solid #2d3640; border-radius:8px; padding:12px; overflow:auto; margin:0.8em 0; font-size:0.8rem; }
+.wrap blockquote { border-left:3px solid #4ecdc4; padding:4px 12px; color:#9aa5b0; margin:0.8em 0; }
+</style>
+</head>
+<body>
+<div class="page-header">
+  <a class="back-link" href="{{ "/" | relURL }}">← Editor</a>
+  <h1>User guide</h1>
+</div>
+<div class="wrap">
+{{ readFile "README-plew-map.md" | markdownify }}
+</div>
+</body>
+</html>

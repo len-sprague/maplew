@@ -1,0 +1,3 @@
+name,loc::lon,loc::lat,dim::language,dim::family,dim::genre,dim::speaker,dim::core,dim::has_audio,desc::date,desc::sex,desc::age,desc::quality,desc::creator,word_tokens,med::audio,med::eaf,med::textgrid
+Beja · BEJ_MV_NARR_32_MEAT,36.67,17.24,Beja,Afro-Asiatic,traditional narrative,AH,core,yes,2011-01-25,m,35,good,"Vanhove, Martine",40,doreco_beja1238_BEJ_MV_NARR_32_MEAT.wav,doreco_beja1238_BEJ_MV_NARR_32_MEAT.eaf,doreco_beja1238_BEJ_MV_NARR_32_MEAT.TextGrid
+Nǁng · NF091001-01_A,19.08,-29.71,Nǁng,Tuu,stimulus retelling,F,core,yes,2009-10-01,f,75,good,"Güldemann, Tom and Ernszt, Martina and Siegmund, Sven and Witzlack-Makarevich, Alena",138,doreco_nngg1234_NF091001-01_A.wav,doreco_nngg1234_NF091001-01_A.eaf,doreco_nngg1234_NF091001-01_A.TextGrid

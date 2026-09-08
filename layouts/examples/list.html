@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ .Title }} — plew-map</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Segoe UI', system-ui, sans-serif; background:#0f1419; color:#e8e8e8; min-height:100vh; }
+.page-header { background:#1a1f26; border-bottom:1px solid #2d3640; padding:32px 40px; }
+.back-link { display:inline-block; margin-bottom:16px; color:#4ecdc4; text-decoration:none; font-size:13px; }
+.page-header h1 { font-size:26px; margin-bottom:8px; }
+.page-header p { color:#8899a6; font-size:14px; }
+.gallery-page { padding:40px; max-width:1100px; margin:0 auto; }
+.gallery { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:24px; }
+.card { background:#1a1f26; border:1px solid #2d3640; border-radius:10px; padding:24px; text-decoration:none; color:inherit; display:flex; flex-direction:column; gap:10px; }
+.card:hover { border-color:#4ecdc4; }
+.card-title { font-size:16px; font-weight:600; }
+.card-desc { font-size:13px; color:#8899a6; line-height:1.55; flex:1; }
+.card-cta { font-size:13px; color:#4ecdc4; }
+.page-footer { text-align:center; padding:40px; border-top:1px solid #2d3640; }
+.page-footer a { color:#8899a6; text-decoration:none; font-size:13px; }
+.page-footer a:hover { color:#4ecdc4; }
+</style>
+</head>
+<body>
+<div class="page-header">
+  <a class="back-link" href="{{ "/" | relURL }}">← Editor</a>
+  <h1>Example datasets</h1>
+  <p>Tiny slices of three corpora. Click a card to open it in plew-map with audio (and ELAN/TextGrid where we have it).</p>
+  <p style="margin-top:12px;"><a href="{{ "user-guide/" | relURL }}" style="color:#4ecdc4;text-decoration:none;font-size:13px;">User guide →</a></p>
+</div>
+<div class="gallery-page">
+  <div class="gallery">
+    {{ range .Pages.ByWeight }}
+    <a class="card" href="{{ .Permalink }}">
+      <div class="card-title">{{ .Title }}</div>
+      <div class="card-desc">{{ .Description }}</div>
+      <div class="card-cta">Open map →</div>
+    </a>
+    {{ end }}
+  </div>
+</div>
+<div class="page-footer">
+  <a href="{{ "/" | relURL }}">Open the editor and drop your own files</a>
+</div>
+</body>
+</html>

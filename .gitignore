@@ -1,0 +1,24 @@
+# Local workshop — not published
+.DS_Store
+* copy.html
+PLeW-NLG/
+.hugo_build.lock
+public/
+resources/
+
+# Corpora (keep on disk; AlpiLinK + DoReCo mini are on GitHub Releases)
+/doreco africa/
+/doreco africa mini/
+/alpilink/
+/englishes_of_the_world/
+/readMe_alpilink.md
+
+# Local experiments (keep on disk)
+/neighborhood/
+/kopes/
+/cim/
+/totoli/
+/sebastianstr/
+
+demo-atlas-map.png
+*.zip

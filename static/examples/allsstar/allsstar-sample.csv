@@ -1,0 +1,3 @@
+name,loc::lon,loc::lat,dim::l1,dim::task_language,dim::task,dim::condition,dim::speaker,dim::sex,med::audio,med::textgrid
+068 F · English · English NWS,-87.68,42.05,English,English,North Wind and the Sun,L1,068,F,ALL_068_F_ENG_ENG_NWS.wav,ALL_068_F_ENG_ENG_NWS.TextGrid
+150 F · Hindi · English NWS,77.21,28.61,Hindi,English,North Wind and the Sun,L2,150,F,ALL_150_F_HIN_ENG_NWS.wav,ALL_150_F_HIN_ENG_NWS.TextGrid

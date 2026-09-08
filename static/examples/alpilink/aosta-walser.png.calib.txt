@@ -1,0 +1,10 @@
+# plew-map calibration for aosta-walser.png
+# style: carto-voyager  size: 764x575 px
+L (left / west):  6.75
+R (right / east): 8.85
+T (top / north):  46.45
+B (bottom / south): 45.35
+Mercator Y: ON (required for Web Mercator tile maps)
+
+Load in plew-map: drop this PNG + CSV/audio bundle.
+Calibration → Image edges → L/R/T/B → check Mercator → Apply.

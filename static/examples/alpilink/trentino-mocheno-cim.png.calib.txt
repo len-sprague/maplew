@@ -1,0 +1,10 @@
+# plew-map calibration for trentino-mocheno-cim.png
+# style: carto-voyager  size: 656x840 px
+L (left / west):  10.8
+R (right / east): 11.7
+T (top / north):  46.45
+B (bottom / south): 45.65
+Mercator Y: ON (required for Web Mercator tile maps)
+
+Load in plew-map: drop this PNG + CSV/audio bundle.
+Calibration → Image edges → L/R/T/B → check Mercator → Apply.

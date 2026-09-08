@@ -1,0 +1,5 @@
+name,loc::lon,loc::lat,dim::variety,dim::language,dim::province,dim::speaker,dim::task,desc::prompt_it,desc::prompt_de,med::audio,med::image
+Ljetzan/Giazza/Selva di Progno (U0181),11.14367872,45.64360116,cim,Cimbro/Zimbrisch,Verona (VR),U0181,I01,L'uomo taglia (su) il salame.,Der Mann schneidet die Salami auf.,I01_cim_U0181.flac,I01.jpg
+Garait/Frassilongo (U0077),11.3176236,46.07722979,mhn,Mòcheno/Bernstolerisch,Trento (TN),U0077,I01,L'uomo taglia (su) il salame.,Der Mann schneidet die Salami auf.,I01_mhn_U0077.flac,I01.jpg
+Pumât/Formazza (U0037),8.400939526,46.39810933,wae,Walser,Verbano-Cusio-Ossola (VB),U0037,I01,L'uomo taglia (su) il salame.,Der Mann schneidet die Salami auf.,I01_wae_U0037.flac,I01.jpg
+Greschòney Drifaltigkeit/Gressoney-La-Trinité (U0059),7.830037099,45.87540432,wae,Walser,Aosta (AO),U0059,I01,L'uomo taglia (su) il salame.,Der Mann schneidet die Salami auf.,I01_wae_U0059.flac,I01.jpg

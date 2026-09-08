@@ -1,0 +1,26 @@
+name,loc::lon,loc::lat,dim::language,dim::vowel,desc::note,med::video
+S01,50.3933,32.525,Bakhtiari,no front rounded vowels,"Settlement 1: elicited wordlist, 2019 fieldwork.",https://youtu.be/dQw4w9WgXcQ
+S02,50.6967,32.45,Charmahali,no front rounded vowels,"Settlement 2: elicited wordlist, 2019 fieldwork.",https://youtu.be/dQw4w9WgXcQ
+S03,50.8133,32.375,Turkic,presence of /ü/,"Settlement 3: elicited wordlist, 2019 fieldwork.",https://youtu.be/dQw4w9WgXcQ
+S04,50.9067,32.4,Turkic,presence of /ö/,"Settlement 4: elicited wordlist, 2019 fieldwork.",https://youtu.be/dQw4w9WgXcQ
+S05,51.0,32.3,Charmahali,presence of /ü/,"Settlement 5: elicited wordlist, 2019 fieldwork.",https://youtu.be/dQw4w9WgXcQ
+S06,51.07,32.2625,Turkic,presence of /ö/,"Settlement 6: elicited wordlist, 2019 fieldwork.",https://youtu.be/dQw4w9WgXcQ
+S07,50.4867,32.25,Bakhtiari,no front rounded vowels,"Settlement 7: elicited wordlist, 2019 fieldwork.",https://youtu.be/dQw4w9WgXcQ
+S08,50.65,32.175,Charmahali,no front rounded vowels,"Settlement 8: elicited wordlist, 2019 fieldwork.",https://youtu.be/dQw4w9WgXcQ
+S09,50.7667,32.1,Charmahali,presence of /ü/,"Settlement 9: elicited wordlist, 2019 fieldwork.",https://youtu.be/dQw4w9WgXcQ
+S10,50.8367,32.0375,Turkic,presence of /ü/,"Settlement 10: elicited wordlist, 2019 fieldwork.",https://youtu.be/dQw4w9WgXcQ
+S11,50.9067,32.025,Turkic,presence of /ö/,"Settlement 11: elicited wordlist, 2019 fieldwork.",https://youtu.be/dQw4w9WgXcQ
+S12,50.9767,31.95,Charmahali,presence of /ö/,"Settlement 12: elicited wordlist, 2019 fieldwork.",https://youtu.be/dQw4w9WgXcQ
+S13,50.58,31.95,Bakhtiari,no front rounded vowels,"Settlement 13: elicited wordlist, 2019 fieldwork.",https://youtu.be/dQw4w9WgXcQ
+S14,50.6967,31.85,Turkic,presence of /ü/,"Settlement 14: elicited wordlist, 2019 fieldwork.",https://youtu.be/dQw4w9WgXcQ
+S15,50.7783,31.8375,Turkic,presence of /ö/,"Settlement 15: elicited wordlist, 2019 fieldwork.",https://youtu.be/dQw4w9WgXcQ
+S16,50.37,31.75,Bakhtiari,no front rounded vowels,"Settlement 16: elicited wordlist, 2019 fieldwork.",https://youtu.be/dQw4w9WgXcQ
+S17,50.6033,31.65,Bakhtiari,no front rounded vowels,"Settlement 17: elicited wordlist, 2019 fieldwork.",https://youtu.be/dQw4w9WgXcQ
+S18,50.9067,31.725,Bakhtiari,no front rounded vowels,"Settlement 18: elicited wordlist, 2019 fieldwork.",https://youtu.be/dQw4w9WgXcQ
+S19,51.0467,31.625,Turkic,presence of /ü/,"Settlement 19: elicited wordlist, 2019 fieldwork.",https://youtu.be/dQw4w9WgXcQ
+S20,51.105,31.6125,Turkic,presence of /ö/,"Settlement 20: elicited wordlist, 2019 fieldwork.",https://youtu.be/dQw4w9WgXcQ
+S21,51.0233,31.5375,Charmahali,no front rounded vowels,"Settlement 21: elicited wordlist, 2019 fieldwork.",https://youtu.be/dQw4w9WgXcQ
+S22,50.72,31.5,Bakhtiari,no front rounded vowels,"Settlement 22: elicited wordlist, 2019 fieldwork.",https://youtu.be/dQw4w9WgXcQ
+S23,50.8133,31.3,Bakhtiari,no front rounded vowels,"Settlement 23: elicited wordlist, 2019 fieldwork.",https://youtu.be/dQw4w9WgXcQ
+S24,51.0933,31.825,Turkic,no front rounded vowels,"Settlement 24: elicited wordlist, 2019 fieldwork.",https://youtu.be/dQw4w9WgXcQ
+__PLEWMAP_CALIB__,"{""mode"": ""edges"", ""mercator"": false, ""locX"": ""loc::lon"", ""locY"": ""loc::lat"", ""L"": 49.6, ""R"": 51.7, ""T"": 32.9, ""B"": 31.0}",,,,,

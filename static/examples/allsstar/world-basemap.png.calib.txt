@@ -1,0 +1,10 @@
+# plew-map calibration for world-basemap.png
+# style: carto-light  size: 2048x1047 px
+L (left / west):  -180.0
+R (right / east): 180.0
+T (top / north):  75.0
+B (bottom / south): -56.0
+Mercator Y: ON (required for Web Mercator tile maps)
+
+Load in plew-map: drop this PNG + CSV/audio bundle.
+Calibration → Image edges → L/R/T/B → check Mercator → Apply.

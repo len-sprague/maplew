@@ -1,0 +1,3 @@
+{{ $html := readFile "plew-map.html" }}
+{{ $boot := printf `<script>window.PLEW_HUGO=true;window.PLEW_EXAMPLES_INDEX=%s;window.PLEW_GUIDE=%s;</script>` ("examples/" | relURL | jsonify) ("user-guide/" | relURL | jsonify) }}
+{{ replace $html "<body>" (printf "<body>\n%s" $boot) | safeHTML }}

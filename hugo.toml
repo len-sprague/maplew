@@ -1,0 +1,9 @@
+# Local: hugo server prints and uses this URL.
+# GitHub Actions overrides --baseURL when deploying (see .github/workflows/hugo.yml).
+baseURL = 'http://localhost:1313/'
+languageCode = 'en-us'
+title = 'plew-map'
+disableKinds = ['taxonomy', 'term', 'RSS', 'sitemap']
+
+[markup.goldmark.renderer]
+  unsafe = true

@@ -1,0 +1,10 @@
+# plew-map calibration for alps-default.png
+# style: carto-light  size: 946x445 px
+L (left / west):  6.65
+R (right / east): 11.85
+T (top / north):  46.85
+B (bottom / south): 45.15
+Mercator Y: ON (required for Web Mercator tile maps)
+
+Load in plew-map: drop this PNG + CSV/audio bundle.
+Calibration → Image edges → L/R/T/B → check Mercator → Apply.

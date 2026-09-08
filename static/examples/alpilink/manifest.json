@@ -1,0 +1,20 @@
+{
+  "files": [
+    "alpilink-sample.csv",
+    "I01_wae_U0059.flac",
+    "I01_wae_U0037.flac",
+    "I01_mhn_U0077.flac",
+    "I01_cim_U0181.flac",
+    "I01.jpg",
+    "alps-default.png",
+    "alps-default.png.calib.txt",
+    "alps-dark.png",
+    "alps-dark.png.calib.txt",
+    "alps-minimal.png",
+    "alps-minimal.png.calib.txt",
+    "aosta-walser.png",
+    "aosta-walser.png.calib.txt",
+    "trentino-mocheno-cim.png",
+    "trentino-mocheno-cim.png.calib.txt"
+  ]
+}
