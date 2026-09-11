@@ -85,6 +85,8 @@ Numeric columns default to continuous and can be forced categorical (e.g., coded
 
 **Point size** scales every point in every mode. **Size as separate ring** de-links the channels: the fill dot keeps a fixed size and carries color, while the size variable becomes an independent open ring — the two-glyph style of the TOEIC reference figure. **Lat/lon graticule** draws constant-X and constant-Y lines *in data space* through the calibration, so Mercator's unequal latitude spacing and affine tilt become visible; note that a blank frame's faint gray gridlines are part of the frame image itself, not this graticule.
 
+**Title & axis labels** — click the title or an axis label directly on the plot to type one in; Enter commits, Esc reverts. The **Title & axis labels pan/zoom with the map** checkbox (on by default) decides how they behave when you navigate: on, labels sit on the map itself and move/scale with it as you zoom and pan, so they can be panned out of view like any other map content — the more "explorable data" behavior. Off pins them around the plot frame instead, at a constant size and always visible regardless of zoom. Labels round-trip through **Export setup** / **Import setup** JSON. **Snapshot PNG** only bakes in fixed-mode labels (drawn into extra canvas margin) — map-attached labels aren't captured yet, so screenshot the current view for those.
+
 ## The record modal
 
 Hover any point for a tooltip of its leading fields; click to open the full record: a title (from `title`/`name`/ID), a field table (including `desc::` columns), and a tabbed media viewer for every populated `med::`/media column — audio player, video, YouTube embed, or image. Escape or clicking outside closes it and stops playback.
