@@ -288,20 +288,6 @@ input[type=checkbox], input[type=radio] { accent-color:#4ecdc4; }
       <div class="status" id="inputStatus"></div>
     </div>
 
-    <div class="section" id="changesSection" style="display:none;">
-      <div class="section-title"><span>Edits</span></div>
-      <div class="changes-count" id="changesCount">No edits yet</div>
-      <div class="btn-row" style="margin-top:0;">
-        <button class="btn undo-redo-btn" id="undoBtn" onclick="undo()" disabled>↩ Undo <span class="badge" id="undoCount">0</span></button>
-        <button class="btn undo-redo-btn" id="redoBtn" onclick="redo()" disabled>↪ Redo <span class="badge" id="redoCount">0</span></button>
-      </div>
-      <div class="btn-row">
-        <button class="btn" onclick="resetAllChanges()">Reset all</button>
-        <button class="btn" onclick="downloadChangeLog()">Change log</button>
-      </div>
-      <div class="changelog-preview" id="changeLogPreview"></div>
-    </div>
-
     <div class="section" id="exportSection" style="display:none;">
       <div class="section-title"><span>Export</span></div>
       <div class="btn-row" style="margin-top:0;">
@@ -315,6 +301,28 @@ input[type=checkbox], input[type=radio] { accent-color:#4ecdc4; }
       <input type="file" class="file-input" id="vizConfigInput" accept=".json">
       <div class="hint"><b>Save to CSV</b> downloads the dataset with the current calibration embedded as a reserved <b>__PLEWMAP_CALIB__</b> row. <b>Export setup</b> saves encodings, filters, calibration, and column roles as JSON (no image or audio).</div>
       <div class="status" id="exportStatus"></div>
+    </div>
+
+    <div class="section" id="editSection" style="display:none;">
+      <div class="section-title"><span>Edit positions</span><span class="step-badge">After calib</span></div>
+      <div class="inline"><input type="checkbox" id="dragChk" onchange="onDisplayChange()"><label for="dragChk"><b>Drag points</b> to move them</label></div>
+      <div class="inline" style="margin-top:8px;"><input type="checkbox" id="addChk" onchange="onDisplayChange()"><label for="addChk"><b>Click map</b> to add a new point</label></div>
+      <div class="hint" id="dragHint" style="margin-top:6px;">Drag updates location columns live. <b>Click map</b> (with add mode on) places a new point. <b>Click</b> a point to view. <b>Shift+click</b> to edit. <b>Alt+click</b> to compare as slot B. <b>Ctrl/Cmd+click</b> to mark. <b>Save to CSV</b> keeps changes.</div>
+      <div class="status" id="dragStatus"></div>
+    </div>
+
+    <div class="section" id="changesSection" style="display:none;">
+      <div class="section-title"><span>Edits</span></div>
+      <div class="changes-count" id="changesCount">No edits yet</div>
+      <div class="btn-row" style="margin-top:0;">
+        <button class="btn undo-redo-btn" id="undoBtn" onclick="undo()" disabled>↩ Undo <span class="badge" id="undoCount">0</span></button>
+        <button class="btn undo-redo-btn" id="redoBtn" onclick="redo()" disabled>↪ Redo <span class="badge" id="redoCount">0</span></button>
+      </div>
+      <div class="btn-row">
+        <button class="btn" onclick="resetAllChanges()">Reset all</button>
+        <button class="btn" onclick="downloadChangeLog()">Change log</button>
+      </div>
+      <div class="changelog-preview" id="changeLogPreview"></div>
     </div>
 
     <div class="section" id="rolesSection" style="display:none;">
@@ -375,14 +383,6 @@ input[type=checkbox], input[type=radio] { accent-color:#4ecdc4; }
         <button class="btn" onclick="resetCalibration()" title="Restore prefilled edge values and clear all three-point markers">Reset to defaults</button>
       </div>
       <div class="status" id="calibStatus"></div>
-    </div>
-
-    <div class="section" id="editSection" style="display:none;">
-      <div class="section-title"><span>Edit positions</span><span class="step-badge">After calib</span></div>
-      <div class="inline"><input type="checkbox" id="dragChk" onchange="onDisplayChange()"><label for="dragChk"><b>Drag points</b> to move them</label></div>
-      <div class="inline" style="margin-top:8px;"><input type="checkbox" id="addChk" onchange="onDisplayChange()"><label for="addChk"><b>Click map</b> to add a new point</label></div>
-      <div class="hint" id="dragHint" style="margin-top:6px;">Drag updates location columns live. <b>Click map</b> (with add mode on) places a new point. <b>Click</b> a point to view. <b>Shift+click</b> to edit. <b>Alt+click</b> to compare as slot B. <b>Ctrl/Cmd+click</b> to mark. <b>Save to CSV</b> keeps changes.</div>
-      <div class="status" id="dragStatus"></div>
     </div>
 
     <div class="section" id="encSection" style="display:none;">
@@ -1098,7 +1098,9 @@ function displaySnapshot(){
     stroke: document.getElementById('strokeChk').checked,
     ring: document.getElementById('ringChk').checked,
     grat: document.getElementById('gratChk').checked,
-    jitter: document.getElementById('jitterChk').checked
+    jitter: document.getElementById('jitterChk').checked,
+    drag: document.getElementById('dragChk').checked,
+    addPoint: document.getElementById('addChk').checked
   };
 }
 function applyDisplaySnapshot(d){
@@ -1111,6 +1113,7 @@ function applyDisplaySnapshot(d){
   set('baseSize', d.baseSize); set('opacity', d.opacity);
   set('strokeChk', d.stroke, true); set('ringChk', d.ring, true);
   set('gratChk', d.grat, true); set('jitterChk', d.jitter, true);
+  set('dragChk', d.drag, true); set('addChk', d.addPoint, true);
   onDisplayChange();
 }
 function buildVisualizationConfig(){
