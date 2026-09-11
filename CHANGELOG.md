@@ -40,6 +40,12 @@ Work-in-progress on `plew-map.html`; not yet committed or merged to `main`.
 - Long-text / description columns use textareas.
 - Closing the modal on an unsaved new point discards it.
 
+#### Editable plot title & axis labels
+- Click the title or an axis label directly on the plot to edit it in place (plain-text `contenteditable`; Enter commits, Esc reverts).
+- **Title & axis labels pan/zoom with the map** toggle in Display, on by default: labels sit on the map itself and move/scale with it as you zoom and pan (can go out of view). Off pins them around the plot frame instead, always visible at a constant size.
+- Persisted through **Export setup** / **Import setup** JSON (`S.labels`).
+- **Snapshot PNG** draws fixed-mode labels into expanded canvas margins; map-attached labels aren't captured in the export yet (screenshot the current view instead).
+
 #### Categorical field picker
 - Columns with known categories (e.g. `dim::type`: food, building, street) show a **pick or type new** control in the editor.
 - Uses an HTML `<datalist>` — choose an existing value or type a new one.

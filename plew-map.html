@@ -133,6 +133,29 @@ input[type=checkbox], input[type=radio] { accent-color:#4ecdc4; }
 .empty-state { border:2px dashed #2d3640; border-radius:12px; padding:70px 40px; text-align:center; color:#6b7680; font-size:0.85rem; max-width:640px; line-height:1.6; }
 .empty-state .big { font-size:2rem; margin-bottom:10px; }
 
+/* ── Plot title / axis labels ──────────────────────────── */
+.plot-frame { display:none; }
+.plot-frame.active { display:flex; flex-direction:column; align-items:center; gap:6px; max-width:100%; }
+.plot-title, .plot-xlabel, .plot-ylabel { font-weight:600; color:#e8e8e8; cursor:text; border-radius:4px; }
+.plot-title { font-size:1.05rem; text-align:center; padding:2px 8px; min-height:1.4em; }
+.plot-xlabel { font-size:0.78rem; text-align:center; padding:2px 8px; min-height:1.3em; }
+.plot-ylabel { font-size:0.78rem; padding:4px 2px; writing-mode:vertical-rl; transform:rotate(180deg); white-space:nowrap; align-self:center; }
+.plot-body { display:flex; flex-direction:row; align-items:center; gap:6px; max-width:100%; }
+.plot-title:empty::before, .plot-xlabel:empty::before, .plot-ylabel:empty::before { content:attr(data-placeholder); color:#6b7680; font-weight:400; font-style:italic; }
+.plot-title:hover, .plot-xlabel:hover, .plot-ylabel:hover, .plot-title:focus, .plot-xlabel:focus, .plot-ylabel:focus { outline:1px dashed #4ecdc4; outline-offset:2px; }
+.plot-title:focus, .plot-xlabel:focus, .plot-ylabel:focus { outline-style:solid; }
+.plot-frame.mode-attached .plot-title,
+.plot-frame.mode-attached .plot-ylabel,
+.plot-frame.mode-attached .plot-xlabel { display:none; }
+.plot-label-attached { position:absolute; max-width:80%; overflow:hidden; text-overflow:ellipsis; color:#222; font-weight:600; cursor:text; white-space:nowrap; border-radius:4px; padding:1px 7px; z-index:3; }
+.plot-label-attached:not(:empty) { background:rgba(255,255,255,0.78); }
+.plot-title-attached { top:6px; left:50%; transform:translateX(-50%); font-size:0.95rem; }
+.plot-xlabel-attached { bottom:6px; left:50%; transform:translateX(-50%); font-size:0.78rem; }
+.plot-ylabel-attached { left:6px; top:50%; transform:translateY(-50%) rotate(180deg); writing-mode:vertical-rl; font-size:0.78rem; }
+.plot-label-attached:empty::before { content:attr(data-placeholder); color:#8a949e; font-weight:400; font-style:italic; background:rgba(255,255,255,0.55); }
+.plot-label-attached:hover, .plot-label-attached:focus { outline:1px dashed #4ecdc4; outline-offset:1px; }
+.plot-frame.mode-fixed .plot-label-attached { display:none; }
+
 .pt-shape { cursor:pointer; transition:opacity 0.1s; }
 .pt-shape:hover { opacity:1 !important; }
 .pt-shape.draggable { cursor:grab; }
@@ -418,6 +441,8 @@ input[type=checkbox], input[type=radio] { accent-color:#4ecdc4; }
       <div class="inline" style="margin-top:8px;"><input type="checkbox" id="jitterChk" onchange="onDisplayChange()"><label for="jitterChk"><b>Spread stacked points</b></label></div>
       <div class="hint" id="jitterHint">When several records share the same coordinates (e.g. municipality centroids), nudge them apart on the map. <b>Visual only</b> — saved CSV coordinates stay unchanged.</div>
       <div class="hint" style="margin-top:8px;">Map navigation: <b>scroll</b> to zoom · <b>drag</b> the map to pan · <b>+/−</b> on the map corner · drag the <b>⋮⋮</b> grip to move those controls · <b>⌂</b> resets view.</div>
+      <div class="inline" style="margin-top:12px;"><input type="checkbox" id="labelsAttachedChk" checked onchange="onLabelsModeChange()"><label for="labelsAttachedChk">Title &amp; axis labels pan/zoom with the map</label></div>
+      <div class="hint">Click the title or an axis label directly on the plot to edit it. <b>On</b> (default): labels sit on the map and move with it as you explore — zooming/panning can carry them out of view. <b>Off</b>: labels stay fixed around the plot frame and are always visible.</div>
     </div>
 
     <div class="section" id="exportSection" style="display:none;">
@@ -452,18 +477,28 @@ input[type=checkbox], input[type=radio] { accent-color:#4ecdc4; }
       Upload a CSV and a background image to begin —<br>
       or press a <b style="color:#4ecdc4;">Demo</b> button in the sidebar to see plew-map reproduce an atlas-style language map and a TOEIC fluency scatter.
     </div>
-    <div class="map-stage" id="mapStage" style="display:none;">
-      <div class="map-zoom-wrap" id="mapZoomWrap">
-        <img id="bgImage" alt="background">
-        <svg class="overlay" id="overlay" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div class="plot-frame" id="plotFrame">
+      <div class="plot-title" id="plotTitleFixed" contenteditable="true" data-placeholder="Click to add a title" data-label-key="title" onblur="commitLabelEdit(this)" onkeydown="labelKeydown(event,this)" onpaste="handleLabelPaste(event)"></div>
+      <div class="plot-body">
+        <div class="plot-ylabel" id="plotYLabelFixed" contenteditable="true" data-placeholder="Y-axis label" data-label-key="yAxis" onblur="commitLabelEdit(this)" onkeydown="labelKeydown(event,this)" onpaste="handleLabelPaste(event)"></div>
+        <div class="map-stage" id="mapStage" style="display:none;">
+          <div class="map-zoom-wrap" id="mapZoomWrap">
+            <img id="bgImage" alt="background">
+            <svg class="overlay" id="overlay" xmlns="http://www.w3.org/2000/svg"></svg>
+            <div class="plot-label-attached plot-title-attached" id="plotTitleAttached" contenteditable="true" data-placeholder="Click to add a title" data-label-key="title" onblur="commitLabelEdit(this)" onkeydown="labelKeydown(event,this)" onpaste="handleLabelPaste(event)"></div>
+            <div class="plot-label-attached plot-xlabel-attached" id="plotXLabelAttached" contenteditable="true" data-placeholder="X-axis label" data-label-key="xAxis" onblur="commitLabelEdit(this)" onkeydown="labelKeydown(event,this)" onpaste="handleLabelPaste(event)"></div>
+            <div class="plot-label-attached plot-ylabel-attached" id="plotYLabelAttached" contenteditable="true" data-placeholder="Y-axis label" data-label-key="yAxis" onblur="commitLabelEdit(this)" onkeydown="labelKeydown(event,this)" onpaste="handleLabelPaste(event)"></div>
+          </div>
+          <div class="map-zoom-bar" id="mapZoomBar">
+            <span class="map-zoom-grip" id="mapZoomGrip" title="Drag to move · double-click to reset position">⋮⋮</span>
+            <button type="button" class="btn map-zoom-btn" onclick="mapZoomBy(1.25)" title="Zoom in">+</button>
+            <button type="button" class="btn map-zoom-btn" onclick="mapZoomBy(1/1.25)" title="Zoom out">−</button>
+            <button type="button" class="btn map-zoom-btn" onclick="resetMapView()" title="Reset zoom">⌂</button>
+            <span class="map-zoom-label" id="mapZoomLabel">100%</span>
+          </div>
+        </div>
       </div>
-      <div class="map-zoom-bar" id="mapZoomBar">
-        <span class="map-zoom-grip" id="mapZoomGrip" title="Drag to move · double-click to reset position">⋮⋮</span>
-        <button type="button" class="btn map-zoom-btn" onclick="mapZoomBy(1.25)" title="Zoom in">+</button>
-        <button type="button" class="btn map-zoom-btn" onclick="mapZoomBy(1/1.25)" title="Zoom out">−</button>
-        <button type="button" class="btn map-zoom-btn" onclick="resetMapView()" title="Reset zoom">⌂</button>
-        <span class="map-zoom-label" id="mapZoomLabel">100%</span>
-      </div>
+      <div class="plot-xlabel" id="plotXLabelFixed" contenteditable="true" data-placeholder="Click to add an X-axis label" data-label-key="xAxis" onblur="commitLabelEdit(this)" onkeydown="labelKeydown(event,this)" onpaste="handleLabelPaste(event)"></div>
     </div>
   </div>
 </div>
@@ -570,7 +605,8 @@ const S = {
   marked:new Set(),
   roleOverrides:{},
   columnVisibility:{},
-  columnRecordOrder:[]
+  columnRecordOrder:[],
+  labels:{ title:'', xAxis:'', yAxis:'', mode:'attached' }
 };
 const MAX_UNDO = 40;
 const ZOOM_MIN = 0.2, ZOOM_MAX = 12;
@@ -679,6 +715,7 @@ function canPanMap(e){
   if (e.button !== 0) return false;
   if (e.target.closest('.map-zoom-bar')) return false;
   if (e.target.closest('.pt-shape')) return false;
+  if (e.target.closest('.plot-label-attached')) return false;
   return true;
 }
 (function initMapNavigation(){
@@ -1088,7 +1125,8 @@ function buildVisualizationConfig(){
     roleOverrides: S.roleOverrides,
     columnVisibility: S.columnVisibility,
     columnRecordOrder: S.columnRecordOrder,
-    activeBasemapId: S.activeBasemapId
+    activeBasemapId: S.activeBasemapId,
+    labels: JSON.parse(JSON.stringify(S.labels))
   };
 }
 function downloadVisualizationConfig(){
@@ -1136,6 +1174,12 @@ function applyVisualizationConfig(cfg){
     S.speakerFilter.selected = new Set(cfg.speakerFilter.selected||[]);
   }
   applyDisplaySnapshot(cfg.display);
+  if (cfg.labels){
+    S.labels.title = cfg.labels.title || '';
+    S.labels.xAxis = cfg.labels.xAxis || '';
+    S.labels.yAxis = cfg.labels.yAxis || '';
+    S.labels.mode = cfg.labels.mode === 'fixed' ? 'fixed' : 'attached';
+  }
   if (cfg.activeBasemapId && S.basemaps.some(b=>b.id===cfg.activeBasemapId)){
     const sel = document.getElementById('basemapSel');
     if (sel) sel.value = cfg.activeBasemapId;
@@ -2880,6 +2924,66 @@ function startPointDrag(e, row, el, shape, r, ringEl){
   document.addEventListener('mousemove', move);
   document.addEventListener('mouseup', up);
 }
+// ============================================================
+// PLOT TITLE & AXIS LABELS (editable in place; fixed or map-attached)
+// ============================================================
+function onLabelsModeChange(){
+  const chk = document.getElementById('labelsAttachedChk');
+  S.labels.mode = (chk && chk.checked) ? 'attached' : 'fixed';
+  renderLabels();
+}
+function syncLabelEl(id, text){
+  const el = document.getElementById(id);
+  if (!el || document.activeElement === el) return;
+  const v = text || '';
+  if (el.textContent !== v) el.textContent = v;
+}
+function renderLabels(){
+  const frame = document.getElementById('plotFrame');
+  if (!frame) return;
+  frame.classList.toggle('active', !!S.imageSet);
+  frame.classList.toggle('mode-attached', S.labels.mode==='attached');
+  frame.classList.toggle('mode-fixed', S.labels.mode!=='attached');
+  const chk = document.getElementById('labelsAttachedChk');
+  if (chk) chk.checked = S.labels.mode==='attached';
+  syncLabelEl('plotTitleFixed', S.labels.title);
+  syncLabelEl('plotTitleAttached', S.labels.title);
+  syncLabelEl('plotXLabelFixed', S.labels.xAxis);
+  syncLabelEl('plotXLabelAttached', S.labels.xAxis);
+  syncLabelEl('plotYLabelFixed', S.labels.yAxis);
+  syncLabelEl('plotYLabelAttached', S.labels.yAxis);
+}
+function commitLabelEdit(el){
+  const key = el.dataset.labelKey;
+  if (!key || !(key in S.labels)) return;
+  const text = (el.textContent || '').replace(/\s+/g,' ').trim();
+  el.textContent = text;
+  S.labels[key] = text;
+  renderLabels();
+}
+function labelKeydown(e, el){
+  if (e.key === 'Enter'){
+    e.preventDefault();
+    el.blur();
+  } else if (e.key === 'Escape'){
+    e.preventDefault();
+    el.textContent = S.labels[el.dataset.labelKey] || '';
+    el.blur();
+  }
+}
+function handleLabelPaste(e){
+  e.preventDefault();
+  const text = ((e.clipboardData || window.clipboardData).getData('text/plain') || '').replace(/[\r\n]+/g,' ');
+  const sel = window.getSelection();
+  if (!sel || !sel.rangeCount) return;
+  const range = sel.getRangeAt(0);
+  range.deleteContents();
+  range.insertNode(document.createTextNode(text));
+  range.collapse(false);
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+
 function renderAll(){
   const ready = S.data.length>0;
   document.getElementById('locSection').style.display = ready?'':'none';
@@ -2902,6 +3006,7 @@ function renderAll(){
   }
   document.getElementById('mapStage').style.display = S.imageSet?'inline-block':'none';
   document.getElementById('mapHeader').style.display = S.imageSet?'flex':'none';
+  renderLabels();
   document.getElementById('mapTitle').textContent = S.activeBasemapId
     ? ((S.datasetName||'plew-map') + ' · ' + (S.basemaps.find(b=>b.id===S.activeBasemapId)?.name || ''))
     : (S.datasetName || 'plew-map');
@@ -3500,11 +3605,24 @@ function downloadCSV(){
 }
 function downloadSnapshot(){
   if (!S.imageSet) return;
+  // Fixed-mode title/axis labels are drawn into extra canvas margins below.
+  // Map-attached labels live outside the overlay SVG (so they follow pan/zoom)
+  // and aren't captured here yet — the current view can still be screenshotted.
+  const showLabels = S.labels.mode === 'fixed';
+  const hasTitle = showLabels && !!S.labels.title;
+  const hasX = showLabels && !!S.labels.xAxis;
+  const hasY = showLabels && !!S.labels.yAxis;
+  const baseFont = Math.max(14, Math.round(S.imgW * 0.018));
+  const titleFont = Math.round(baseFont * 1.25);
+  const marginTop = hasTitle ? Math.round(titleFont * 2.2) : 0;
+  const marginBottom = hasX ? Math.round(baseFont * 2.4) : 0;
+  const marginLeft = hasY ? Math.round(baseFont * 2.4) : 0;
   const cv = document.createElement('canvas');
-  cv.width = S.imgW; cv.height = S.imgH;
+  cv.width = S.imgW + marginLeft;
+  cv.height = S.imgH + marginTop + marginBottom;
   const g = cv.getContext('2d');
-  g.fillStyle = '#ffffff'; g.fillRect(0,0,S.imgW,S.imgH);
-  g.drawImage(document.getElementById('bgImage'), 0, 0, S.imgW, S.imgH);
+  g.fillStyle = '#ffffff'; g.fillRect(0,0,cv.width,cv.height);
+  g.drawImage(document.getElementById('bgImage'), marginLeft, marginTop, S.imgW, S.imgH);
   const svg = document.getElementById('overlay').cloneNode(true);
   svg.setAttribute('width', S.imgW);
   svg.setAttribute('height', S.imgH);
@@ -3512,10 +3630,33 @@ function downloadSnapshot(){
   const xml = new XMLSerializer().serializeToString(svg);
   const img = new Image();
   img.onload = ()=>{
-    g.drawImage(img, 0, 0, S.imgW, S.imgH);
+    g.drawImage(img, marginLeft, marginTop, S.imgW, S.imgH);
+    g.fillStyle = '#1a1a1a';
+    g.textAlign = 'center';
+    g.textBaseline = 'alphabetic';
+    if (hasTitle){
+      g.font = `600 ${titleFont}px "Segoe UI", sans-serif`;
+      g.fillText(S.labels.title, marginLeft + S.imgW/2, Math.round(titleFont*1.4));
+    }
+    if (hasX){
+      g.font = `600 ${baseFont}px "Segoe UI", sans-serif`;
+      g.fillText(S.labels.xAxis, marginLeft + S.imgW/2, cv.height - Math.round(baseFont*0.8));
+    }
+    if (hasY){
+      g.save();
+      g.translate(Math.round(baseFont*1.6), marginTop + S.imgH/2);
+      g.rotate(-Math.PI/2);
+      g.font = `600 ${baseFont}px "Segoe UI", sans-serif`;
+      g.fillText(S.labels.yAxis, 0, 0);
+      g.restore();
+    }
     try {
       triggerDownload(cv.toDataURL('image/png'), exportBaseName() + '-snapshot.png');
-      setStatus('exportStatus','ok','Snapshot PNG saved at the image\'s native resolution.');
+      if (S.labels.mode==='attached' && (S.labels.title||S.labels.xAxis||S.labels.yAxis)){
+        setStatus('exportStatus','ok','Snapshot PNG saved. Map-attached labels aren\'t captured in the export yet — switch to fixed labels first, or screenshot the current view.');
+      } else {
+        setStatus('exportStatus','ok','Snapshot PNG saved at the image\'s native resolution.');
+      }
     } catch(e){
       setStatus('exportStatus','err','Snapshot failed: the canvas was blocked ('+escHtml(e.message)+').');
     }
