@@ -302,6 +302,21 @@ input[type=checkbox], input[type=radio] { accent-color:#4ecdc4; }
       <div class="changelog-preview" id="changeLogPreview"></div>
     </div>
 
+    <div class="section" id="exportSection" style="display:none;">
+      <div class="section-title"><span>Export</span></div>
+      <div class="btn-row" style="margin-top:0;">
+        <button class="btn primary" style="flex:1;" onclick="downloadCSV()">💾 Save to CSV</button>
+        <button class="btn" onclick="downloadSnapshot()">📸 Snapshot PNG</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn" onclick="downloadVisualizationConfig()">📤 Export setup</button>
+        <button class="btn" onclick="document.getElementById('vizConfigInput').click()">📥 Import setup</button>
+      </div>
+      <input type="file" class="file-input" id="vizConfigInput" accept=".json">
+      <div class="hint"><b>Save to CSV</b> downloads the dataset with the current calibration embedded as a reserved <b>__PLEWMAP_CALIB__</b> row. <b>Export setup</b> saves encodings, filters, calibration, and column roles as JSON (no image or audio).</div>
+      <div class="status" id="exportStatus"></div>
+    </div>
+
     <div class="section" id="rolesSection" style="display:none;">
       <div class="section-title"><span>Column roles</span></div>
       <div class="hint" style="margin-top:0;">Retag columns and hide fields in the record window. Prefixes on export follow the role you set.</div>
@@ -445,21 +460,6 @@ input[type=checkbox], input[type=radio] { accent-color:#4ecdc4; }
       <div class="hint">Click the title or an axis label directly on the plot to edit it. <b>On</b> (default): labels sit on the map and move with it as you explore — zooming/panning can carry them out of view. <b>Off</b>: labels stay fixed around the plot frame and are always visible.</div>
     </div>
 
-    <div class="section" id="exportSection" style="display:none;">
-      <div class="section-title"><span>Export</span></div>
-      <div class="btn-row" style="margin-top:0;">
-        <button class="btn primary" style="flex:1;" onclick="downloadCSV()">💾 Save to CSV</button>
-        <button class="btn" onclick="downloadSnapshot()">📸 Snapshot PNG</button>
-      </div>
-      <div class="btn-row">
-        <button class="btn" onclick="downloadVisualizationConfig()">📤 Export setup</button>
-        <button class="btn" onclick="document.getElementById('vizConfigInput').click()">📥 Import setup</button>
-      </div>
-      <input type="file" class="file-input" id="vizConfigInput" accept=".json">
-      <div class="hint"><b>Save to CSV</b> downloads the dataset with the current calibration embedded as a reserved <b>__PLEWMAP_CALIB__</b> row. <b>Export setup</b> saves encodings, filters, calibration, and column roles as JSON (no image or audio).</div>
-      <div class="status" id="exportStatus"></div>
-    </div>
-
     <div class="section" id="legendSection" style="display:none;">
       <div class="section-title"><span>Legend</span></div>
       <div id="legendBody"></div>
@@ -590,7 +590,7 @@ const S = {
   imageUrl:null, imgW:0, imgH:0, isFrame:false, imageSet:false,
   locX:null, locY:null, mercator:false,
   calib:{ mode:'edges', edges:{L:null,R:null,T:null,B:null}, pts:[mkPt(),mkPt(),mkPt()], affine:null, placing:-1, valid:false, prefilled:false },
-  enc:{ color:{col:'',type:'categorical',ramp:'viridis',catColors:{}}, size:{col:'',type:'continuous'}, shape:{col:''} },
+  enc:{ color:{col:'',type:'categorical',ramp:'viridis',catColors:{}}, size:{col:'',type:'continuous',minPx:4,maxPx:16}, shape:{col:''} },
   filters:{},
   speakerFilter:{ multiOnly:false, selected:new Set() },
   media:{}, alignFiles:{}, alignCache:{}, datasetName:'', skipped:0, pendingCalib:null,
@@ -1166,6 +1166,8 @@ function applyVisualizationConfig(cfg){
     if (S.enc.color.col) document.getElementById('colorSel').value = S.enc.color.col;
     if (S.enc.size.col) document.getElementById('sizeSel').value = S.enc.size.col;
     if (S.enc.shape.col) document.getElementById('shapeSel').value = S.enc.shape.col;
+    document.getElementById('sizeMin').value = S.enc.size.minPx ?? 4;
+    document.getElementById('sizeMax').value = S.enc.size.maxPx ?? 16;
     onEncChange();
   }
   if (cfg.filters) S.filters = cfg.filters;
@@ -2493,6 +2495,8 @@ function onEncChange(){
   S.enc.size.col = document.getElementById('sizeSel').value;
   S.enc.shape.col = document.getElementById('shapeSel').value;
   S.enc.color.ramp = document.getElementById('rampSel').value;
+  S.enc.size.minPx = Number(document.getElementById('sizeMin').value) || 4;
+  S.enc.size.maxPx = Number(document.getElementById('sizeMax').value) || 16;
   // keep type sane per column
   ['color','size'].forEach(ch=>{
     const col = S.enc[ch].col;
@@ -3760,6 +3764,7 @@ function loadDemoTOEIC(){
     S.calib.prefilled = false;
     S.enc.color.col='dim::lexical_richness'; S.enc.color.type='continuous'; S.enc.color.ramp='blueorange';
     S.enc.size.col='dim::toeic'; S.enc.size.type='continuous';
+    S.enc.size.minPx=4; S.enc.size.maxPx=14;
     document.getElementById('sizeMin').value=4; document.getElementById('sizeMax').value=14;
     S.enc.shape.col='';
     document.getElementById('ringChk').checked = true;   // de-linked: TOEIC score as separate open ring
