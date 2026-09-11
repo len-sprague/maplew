@@ -590,7 +590,7 @@ const S = {
   imageUrl:null, imgW:0, imgH:0, isFrame:false, imageSet:false,
   locX:null, locY:null, mercator:false,
   calib:{ mode:'edges', edges:{L:null,R:null,T:null,B:null}, pts:[mkPt(),mkPt(),mkPt()], affine:null, placing:-1, valid:false, prefilled:false },
-  enc:{ color:{col:'',type:'categorical',ramp:'viridis',catColors:{}}, size:{col:'',type:'continuous'}, shape:{col:''} },
+  enc:{ color:{col:'',type:'categorical',ramp:'viridis',catColors:{}}, size:{col:'',type:'continuous',minPx:4,maxPx:16}, shape:{col:''} },
   filters:{},
   speakerFilter:{ multiOnly:false, selected:new Set() },
   media:{}, alignFiles:{}, alignCache:{}, datasetName:'', skipped:0, pendingCalib:null,
@@ -1166,6 +1166,8 @@ function applyVisualizationConfig(cfg){
     if (S.enc.color.col) document.getElementById('colorSel').value = S.enc.color.col;
     if (S.enc.size.col) document.getElementById('sizeSel').value = S.enc.size.col;
     if (S.enc.shape.col) document.getElementById('shapeSel').value = S.enc.shape.col;
+    document.getElementById('sizeMin').value = S.enc.size.minPx ?? 4;
+    document.getElementById('sizeMax').value = S.enc.size.maxPx ?? 16;
     onEncChange();
   }
   if (cfg.filters) S.filters = cfg.filters;
@@ -2493,6 +2495,8 @@ function onEncChange(){
   S.enc.size.col = document.getElementById('sizeSel').value;
   S.enc.shape.col = document.getElementById('shapeSel').value;
   S.enc.color.ramp = document.getElementById('rampSel').value;
+  S.enc.size.minPx = Number(document.getElementById('sizeMin').value) || 4;
+  S.enc.size.maxPx = Number(document.getElementById('sizeMax').value) || 16;
   // keep type sane per column
   ['color','size'].forEach(ch=>{
     const col = S.enc[ch].col;
@@ -3760,6 +3764,7 @@ function loadDemoTOEIC(){
     S.calib.prefilled = false;
     S.enc.color.col='dim::lexical_richness'; S.enc.color.type='continuous'; S.enc.color.ramp='blueorange';
     S.enc.size.col='dim::toeic'; S.enc.size.type='continuous';
+    S.enc.size.minPx=4; S.enc.size.maxPx=14;
     document.getElementById('sizeMin').value=4; document.getElementById('sizeMax').value=14;
     S.enc.shape.col='';
     document.getElementById('ringChk').checked = true;   // de-linked: TOEIC score as separate open ring
