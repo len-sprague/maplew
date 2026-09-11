@@ -302,6 +302,21 @@ input[type=checkbox], input[type=radio] { accent-color:#4ecdc4; }
       <div class="changelog-preview" id="changeLogPreview"></div>
     </div>
 
+    <div class="section" id="exportSection" style="display:none;">
+      <div class="section-title"><span>Export</span></div>
+      <div class="btn-row" style="margin-top:0;">
+        <button class="btn primary" style="flex:1;" onclick="downloadCSV()">💾 Save to CSV</button>
+        <button class="btn" onclick="downloadSnapshot()">📸 Snapshot PNG</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn" onclick="downloadVisualizationConfig()">📤 Export setup</button>
+        <button class="btn" onclick="document.getElementById('vizConfigInput').click()">📥 Import setup</button>
+      </div>
+      <input type="file" class="file-input" id="vizConfigInput" accept=".json">
+      <div class="hint"><b>Save to CSV</b> downloads the dataset with the current calibration embedded as a reserved <b>__PLEWMAP_CALIB__</b> row. <b>Export setup</b> saves encodings, filters, calibration, and column roles as JSON (no image or audio).</div>
+      <div class="status" id="exportStatus"></div>
+    </div>
+
     <div class="section" id="rolesSection" style="display:none;">
       <div class="section-title"><span>Column roles</span></div>
       <div class="hint" style="margin-top:0;">Retag columns and hide fields in the record window. Prefixes on export follow the role you set.</div>
@@ -443,21 +458,6 @@ input[type=checkbox], input[type=radio] { accent-color:#4ecdc4; }
       <div class="hint" style="margin-top:8px;">Map navigation: <b>scroll</b> to zoom · <b>drag</b> the map to pan · <b>+/−</b> on the map corner · drag the <b>⋮⋮</b> grip to move those controls · <b>⌂</b> resets view.</div>
       <div class="inline" style="margin-top:12px;"><input type="checkbox" id="labelsAttachedChk" checked onchange="onLabelsModeChange()"><label for="labelsAttachedChk">Title &amp; axis labels pan/zoom with the map</label></div>
       <div class="hint">Click the title or an axis label directly on the plot to edit it. <b>On</b> (default): labels sit on the map and move with it as you explore — zooming/panning can carry them out of view. <b>Off</b>: labels stay fixed around the plot frame and are always visible.</div>
-    </div>
-
-    <div class="section" id="exportSection" style="display:none;">
-      <div class="section-title"><span>Export</span></div>
-      <div class="btn-row" style="margin-top:0;">
-        <button class="btn primary" style="flex:1;" onclick="downloadCSV()">💾 Save to CSV</button>
-        <button class="btn" onclick="downloadSnapshot()">📸 Snapshot PNG</button>
-      </div>
-      <div class="btn-row">
-        <button class="btn" onclick="downloadVisualizationConfig()">📤 Export setup</button>
-        <button class="btn" onclick="document.getElementById('vizConfigInput').click()">📥 Import setup</button>
-      </div>
-      <input type="file" class="file-input" id="vizConfigInput" accept=".json">
-      <div class="hint"><b>Save to CSV</b> downloads the dataset with the current calibration embedded as a reserved <b>__PLEWMAP_CALIB__</b> row. <b>Export setup</b> saves encodings, filters, calibration, and column roles as JSON (no image or audio).</div>
-      <div class="status" id="exportStatus"></div>
     </div>
 
     <div class="section" id="legendSection" style="display:none;">
