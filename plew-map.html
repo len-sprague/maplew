@@ -3235,6 +3235,11 @@ window.addEventListener('resize', ()=>{
   applyZoomBarPos();
   renderAll();
 });
+window.addEventListener('beforeunload', e=>{
+  if (!S.data.length) return;
+  e.preventDefault();
+  e.returnValue = '';
+});
 
 // ── Legend ──
 function renderLegend(){
