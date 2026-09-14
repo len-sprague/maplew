@@ -3805,6 +3805,12 @@ async function loadRemoteExample(manifestUrl){
     files.push(new File([await r.blob()], name));
   }
   await handleFiles(files);
+  if (!S.imageSet) useBlankFrame();
+}
+async function loadRemoteSetup(setupUrl){
+  const res = await fetch(setupUrl);
+  if (!res.ok) throw new Error('setup '+res.status);
+  applyVisualizationConfig(await res.json());
 }
 if (window.PLEW_HUGO){
   const nav = document.getElementById('examplesNav');
@@ -3821,7 +3827,9 @@ if (window.PLEW_HUGO){
   }
 }
 if (window.PLEW_EXAMPLE){
-  loadRemoteExample(window.PLEW_EXAMPLE).catch(e=>{
+  loadRemoteExample(window.PLEW_EXAMPLE).then(()=>{
+    if (window.PLEW_SETUP) return loadRemoteSetup(window.PLEW_SETUP);
+  }).catch(e=>{
     console.error(e);
     setStatus('inputStatus','err','Could not load the example dataset.');
   });
