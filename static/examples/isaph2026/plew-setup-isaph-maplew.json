@@ -1,0 +1,140 @@
+{
+  "version": 1,
+  "locX": "time",
+  "locY": "rater",
+  "mercator": false,
+  "calib": {
+    "mode": "edges",
+    "mercator": false,
+    "locX": "time",
+    "locY": "rater",
+    "L": 0,
+    "R": 90,
+    "T": 5,
+    "B": 0
+  },
+  "enc": {
+    "color": {
+      "col": "rating",
+      "type": "categorical",
+      "ramp": "viridis",
+      "catColors": {
+        "w": "#0000ff",
+        "y": "#ff7f7f",
+        "z": "#ff0000",
+        "x": "#7f7fff",
+        "a": "#ffffff",
+        "g": "#000000",
+        "b": "#d2d2d2",
+        "c": "#aaaaaa",
+        "d": "#7f7f7f",
+        "f": "#282828",
+        "e": "#505050"
+      }
+    },
+    "size": {
+      "col": "dim::image",
+      "type": "categorical",
+      "minPx": 10,
+      "maxPx": 7
+    },
+    "shape": {
+      "col": "dim::image"
+    }
+  },
+  "filters": {
+    "rating": {
+      "a": true,
+      "b": true,
+      "c": true,
+      "d": true,
+      "e": true,
+      "f": true,
+      "g": true,
+      "w": true,
+      "x": true,
+      "y": true,
+      "z": true
+    },
+    "dim::image": {
+      "no": true,
+      "yes": true
+    }
+  },
+  "speakerFilter": {
+    "multiOnly": false,
+    "selected": []
+  },
+  "display": {
+    "baseSize": "6",
+    "opacity": "0.9",
+    "stroke": true,
+    "ring": false,
+    "grat": false,
+    "jitter": false,
+    "drag": false,
+    "addPoint": false
+  },
+  "roleOverrides": {},
+  "columnVisibility": {
+    "ID": true,
+    "time": true,
+    "rater": true,
+    "rating": true,
+    "desc::rater": true,
+    "dim::image": true,
+    "med::audio": true,
+    "med::video": true,
+    "med::image": true,
+    "desc::text": true,
+    "syllables": true,
+    "disfluencies": true,
+    "duration": true,
+    "rate": true,
+    "mean": true,
+    "sd": true,
+    "excursion": true,
+    "min": true,
+    "max": true,
+    "res::hide_ipu_code": true,
+    "res::temp_audio_code": true,
+    "res::recording": true,
+    "res::snippet": true,
+    "res::offset": true,
+    "res::experimentalsequence": true
+  },
+  "columnRecordOrder": [
+    "ID",
+    "time",
+    "rater",
+    "rating",
+    "desc::rater",
+    "dim::image",
+    "med::audio",
+    "med::video",
+    "med::image",
+    "desc::text",
+    "syllables",
+    "disfluencies",
+    "duration",
+    "rate",
+    "mean",
+    "sd",
+    "excursion",
+    "min",
+    "max",
+    "res::hide_ipu_code",
+    "res::temp_audio_code",
+    "res::recording",
+    "res::snippet",
+    "res::offset",
+    "res::experimentalsequence"
+  ],
+  "activeBasemapId": null,
+  "labels": {
+    "title": "",
+    "xAxis": "",
+    "yAxis": "",
+    "mode": "attached"
+  }
+}
