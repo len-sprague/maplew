@@ -1,3 +1,5 @@
 {{ $html := readFile "plew-map.html" }}
-{{ $boot := printf `<script>window.PLEW_HUGO=true;window.PLEW_EXAMPLES_INDEX=%s;window.PLEW_GUIDE=%s;window.PLEW_EXAMPLE=%s;</script>` ("examples/" | relURL | jsonify) ("user-guide/" | relURL | jsonify) (.Params.manifest | relURL | jsonify) }}
+{{ $setupJS := "" }}
+{{ with .Params.setup }}{{ $setupJS = printf "window.PLEW_SETUP=%s;" (. | relURL | jsonify) }}{{ end }}
+{{ $boot := printf `<script>window.PLEW_HUGO=true;window.PLEW_EXAMPLES_INDEX=%s;window.PLEW_GUIDE=%s;window.PLEW_EXAMPLE=%s;%s</script>` ("examples/" | relURL | jsonify) ("user-guide/" | relURL | jsonify) (.Params.manifest | relURL | jsonify) $setupJS }}
 {{ replace $html "<body>" (printf "<body>\n%s" $boot) | safeHTML }}
