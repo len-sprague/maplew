@@ -71,13 +71,15 @@ Each example page is a small folder of files (your CSV, a background image, and 
 
 2. **Add a background image and media, if you have one.** Not every dataset needs a map or figure behind it — plain scatter data is fine with no image at all. If you do have a background (a map, a scanned figure, etc.), put it, your CSV, and any audio/video/ELAN/TextGrid files together in a new folder under `static/examples/`, e.g. `static/examples/<your-dataset-name>/`. Reference media in the CSV by filename (matched by basename) or with a full `https://` link.
 
+   Whichever you choose, make sure it actually resolves for your visitors: a bare filename only works if that file is sitting in the same folder *and* listed in the manifest (next step); a full URL needs to be a permanent address you control (your own site — e.g. `lensprague.com` — or a real hosting service), not a leftover link into a colleague's copy of the site or a personal machine, which will break for everyone but you.
+
 3. **Calibrate (only if you have a background image).** Run `hugo server` (or open `plew-map.html` directly) and drop your CSV and image onto the page. Use Step 2 (Calibration) to tell plew-map how your coordinates map onto the image — Image edges is simplest for most maps. Once it looks right, click **💾 Save to CSV**: the download has the calibration embedded in a reserved row, so anyone who loads that file gets the correct positions automatically, with no extra sidecar file needed. Replace your draft CSV in `static/examples/<your-dataset-name>/` with this saved version.
 
    (If you want to offer several switchable basemaps for the same data, as the AlpiLinK example does, write a `<your-image>.png.calib.txt` sidecar per image instead — see the existing examples under `static/examples/` for the format.)
 
-   **No background image?** Click **No background** instead of dropping an image — plew-map generates a blank frame and auto-fits the axes to your data's own coordinate range, so there's nothing to align and this calibration step can be skipped. You can still fine-tune the display — colors, point size/spacing, shapes, filters — under Step 3 (Encodings) and Display options, then click **📤 Export setup** to save those choices as a JSON file. Keep that file in your dataset folder alongside the CSV as a record of your configuration; it isn't loaded automatically, but anyone can reproduce your exact view by downloading it and using **📥 Import setup** after opening the page.
+   **No background image?** Click **No background** instead of dropping an image — plew-map generates a blank frame and auto-fits the axes to your data's own coordinate range, so there's nothing to align and this calibration step can be skipped. A manifest-driven example page does the same thing automatically: if its manifest doesn't list a basemap image, plew-map creates the blank frame itself as soon as the data loads, so the plot appears right away with no extra click needed from visitors.
 
-   A manifest with only a CSV loads the data table but leaves the plot area hidden — visitors need to click **No background** once themselves to reveal it (a small note on your example page is a good idea, e.g. mention it in the page's `description`).
+   You can still fine-tune the display — colors, point size/spacing, shapes, filters — under Step 3 (Encodings) and Display options, then click **📤 Export setup** to save those choices as a JSON file. Keep that file in your dataset folder alongside the CSV. On its own it's just a reference anyone can manually load via **📥 Import setup** — see the `setup` field in Step 5 below to have it applied automatically for every visitor instead.
 
 4. **List your files in a manifest.** Create `static/examples/<your-dataset-name>/manifest.json` naming every file the example needs to load:
 
@@ -90,7 +92,11 @@ Each example page is a small folder of files (your CSV, a background image, and 
 }
 ```
 
-If you have no background image, just list the CSV (plus any media files).
+   List the CSV and any local media it references by filename (matched by basename) — audio, images, video, ELAN/TextGrid files, and `.calib.txt` sidecars all belong here. Media the CSV references by full `https://` URL (including YouTube links) doesn't need to be listed — a visitor's browser fetches those directly when they open a record, not through the manifest. If you have no background image, just list the CSV plus whatever local media files you have.
+
+   Two mistakes here fail silently (the page just shows "Could not load the example dataset" with no other clue), so double-check both:
+   * **The path in `manifest`** (set in Step 5 below) **must match the folder you actually created.** A typo, or renaming the folder later without updating the front matter, means every file fetch 404s.
+   * **`manifest.json` must be the `{"files": [...]}` list shown above — not the JSON from Export setup.** They're two different files with two different jobs (see the `setup` field in Step 5): pointing `manifest` at a setup export instead of a real manifest fails the same way, since there's no `files` array in it to read.
 
 5. **Create the content page.** From a terminal in the project folder, run:
 
@@ -106,11 +112,12 @@ title = "My Dataset"
 description = "A short description shown on the example gallery card."
 layout = "example-map"
 manifest = "examples/<your-dataset-name>/manifest.json"
+setup = "examples/<your-dataset-name>/your-setup-file.json"
 weight = 10
 +++
 ```
 
-`weight` controls where the page appears in the example gallery (lower numbers first).
+`weight` controls where the page appears in the example gallery (lower numbers first). `setup` is optional: point it at a JSON file you saved earlier with **📤 Export setup**, and plew-map applies those encodings, filters, calibration, and column roles automatically as soon as the dataset loads — visitors see your exact curated view with nothing to import themselves. Leave it out and visitors see the raw data with default styling instead.
 
 6. **Test locally.** With `hugo server` running, open `http://localhost:1313/examples/<your-dataset-name>/` and confirm your data loads, positions look right (calibration, or the auto-fit blank frame), and any media plays correctly. Adjust column prefixes or calibration as needed.
 
@@ -124,7 +131,7 @@ weight = 10
 https://<your-github-username>.github.io/<your-repo-name>/examples/<your-dataset-name>/
 ```
 
-4. Share that link directly with collaborators — it opens straight into plew-map with your dataset already loaded, no upload required (if you calibrated a background image, points are positioned correctly right away; for a no-image dataset, a visitor just clicks **No background** once to reveal the auto-fit plot).
+4. Share that link directly with collaborators — it opens straight into plew-map with your dataset already loaded and positioned (calibrated against your background image, or auto-fit into a blank frame if you have none), no upload required. If you set a `setup` file, your saved colors, filters, and encodings apply automatically too.
 
 ## Troubleshooting
 
