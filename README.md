@@ -40,6 +40,86 @@ Audio bundles are not in git. Download a drop-in zip from [Releases](https://git
 
 ALLSSTAR (world Englishes) wavs stay on [SpeechBox](https://speechbox.linguistics.northwestern.edu/ALLSSTARcentral/#!/recordings).
 
+## Sharing your own example dataset
+
+If you have your own data and want collaborators to explore it in plew-map — without them needing to install anything — you can host your own copy of this site and add your dataset as a new example page. Once it's live, you just send collaborators a link.
+
+### Step 1: Get your own copy of plew-map online
+
+1. On GitHub, fork this repository into your own GitHub account (button in the top-right of the repo page).
+2. In your fork, go to Settings → Pages, and under "Build and deployment", set Source to GitHub Actions. (This repo already includes the workflow file that builds the site with Hugo — you don't need to write one yourself.)
+3. Push any commit to your fork's `main` branch (even a small one, like editing this README) to trigger the first build. You can watch its progress under the Actions tab.
+4. After the build finishes (usually 1–2 minutes), your own plew-map site will be live at:
+
+```
+https://<your-github-username>.github.io/<your-repo-name>/
+```
+
+Bookmark this — it's your permanent home for examples going forward.
+
+### Step 2: Add a new example dataset
+
+Each example page is a small folder of files (your CSV, a background image, and any media) plus a short manifest and a content page that tells plew-map about it — no coding required.
+
+1. **Prepare your CSV.** plew-map extends PLeW's column-prefix convention with one more, for coordinates:
+   * `loc::` — a position coordinate, e.g. `loc::lon`, `loc::lat`, or any numeric axis like `loc::x_speech_rate`
+   * `dim::` — a variable to encode with color/size/shape (e.g. `dim::language`)
+   * `med::` — media: audio, image, video, or a YouTube link (e.g. `med::recording`)
+   * `desc::` — descriptive text, shown only in the detail popup (e.g. `desc::transcript`)
+
+   Prefixes are optional — plew-map falls back to name heuristics (`lat`/`lon`/`x`/`y`, `audio_url`, `transcript`, and similar) — but prefixed columns always win and are the most reliable way to get the right treatment.
+
+2. **Add your background image and media.** Put your CSV, one or more background images (a map, a scanned figure, or a blank frame), and any audio/video/ELAN/TextGrid files together in a new folder under `static/examples/`, e.g. `static/examples/<your-dataset-name>/`. Reference media in the CSV by filename (matched by basename) or with a full `https://` link.
+
+3. **Calibrate, then save a self-calibrating CSV.** Run `hugo server` (or open `plew-map.html` directly), drop your CSV and image onto the page, and use Step 2 (Calibration) to tell plew-map how your coordinates map onto the image — Image edges is simplest for most maps. Once it looks right, click **💾 Save to CSV**: the download has the calibration embedded in a reserved row, so anyone who loads that file gets the correct positions automatically, with no extra sidecar file needed. Replace your draft CSV in `static/examples/<your-dataset-name>/` with this saved version.
+
+   (If you want to offer several switchable basemaps for the same data, as the AlpiLinK example does, write a `<your-image>.png.calib.txt` sidecar per image instead — see the existing examples under `static/examples/` for the format.)
+
+4. **List your files in a manifest.** Create `static/examples/<your-dataset-name>/manifest.json` naming every file the example needs:
+
+```json
+{
+  "files": [
+    "your-dataset.csv",
+    "your-map.png"
+  ]
+}
+```
+
+5. **Create the content page.** From a terminal in the project folder, run:
+
+```
+hugo new content/examples/<your-dataset-name>.md
+```
+
+Open the new file, remove the `draft = true` line so it will actually publish, and fill in the rest:
+
+```
++++
+title = "My Dataset"
+description = "A short description shown on the example gallery card."
+layout = "example-map"
+manifest = "examples/<your-dataset-name>/manifest.json"
+weight = 10
++++
+```
+
+`weight` controls where the page appears in the example gallery (lower numbers first).
+
+6. **Test locally.** With `hugo server` running, open `http://localhost:1313/examples/<your-dataset-name>/` and confirm your data loads, calibration lines up, and any media plays correctly. Adjust column prefixes or calibration as needed.
+
+### Step 3: Publish and share
+
+1. Commit your changes and push them to your fork (directly to `main`, or via a pull request into your own `main` if you prefer to review first).
+2. Once the changes are on `main`, GitHub Actions automatically rebuilds and redeploys your site — no extra steps needed.
+3. Your new dataset will be live at:
+
+```
+https://<your-github-username>.github.io/<your-repo-name>/examples/<your-dataset-name>/
+```
+
+4. Share that link directly with collaborators — it opens straight into plew-map with your dataset already loaded and calibrated, no upload required.
+
 ## Troubleshooting
 
 | Problem | Fix |
