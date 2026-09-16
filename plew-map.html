@@ -133,6 +133,11 @@ input[type=checkbox], input[type=radio] { accent-color:#4ecdc4; }
 .empty-state { border:2px dashed #2d3640; border-radius:12px; padding:70px 40px; text-align:center; color:#6b7680; font-size:0.85rem; max-width:640px; line-height:1.6; }
 .empty-state .big { font-size:2rem; margin-bottom:10px; }
 
+.dataset-loading-banner { display:none; align-items:center; gap:10px; max-width:640px; margin-bottom:16px; padding:12px 16px; border-radius:10px; background:#3a2f14; border:1px solid #6b5a1e; color:#ffd93d; font-size:0.85rem; line-height:1.5; }
+.dataset-loading-banner.active { display:flex; }
+.dataset-loading-spinner { flex-shrink:0; width:18px; height:18px; border-radius:50%; border:2px solid rgba(255,217,61,0.35); border-top-color:#ffd93d; animation:dataset-loading-spin 0.8s linear infinite; }
+@keyframes dataset-loading-spin { to { transform:rotate(360deg); } }
+
 /* ── Plot title / axis labels ──────────────────────────── */
 .plot-frame { display:none; }
 .plot-frame.active { display:flex; flex-direction:column; align-items:center; gap:6px; max-width:100%; }
@@ -468,6 +473,10 @@ input[type=checkbox], input[type=radio] { accent-color:#4ecdc4; }
   <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="Toggle sidebar (B)"><span class="arrow">◀</span></button>
 
   <div class="main-area">
+    <div class="dataset-loading-banner" id="datasetLoadingBanner">
+      <span class="dataset-loading-spinner" aria-hidden="true"></span>
+      <span>Dataset is loading. Please wait while the data is read and configured for viewing!</span>
+    </div>
     <div class="map-header" id="mapHeader" style="display:none;">
       <h2 id="mapTitle">plew-map</h2>
       <span class="meta" id="mapMeta"></span>
@@ -3792,6 +3801,12 @@ function mulberry32(seed){
     return ((t ^ t>>>14) >>> 0) / 4294967296;
   };
 }
+function showDatasetLoading(){
+  document.getElementById('datasetLoadingBanner')?.classList.add('active');
+}
+function hideDatasetLoading(){
+  document.getElementById('datasetLoadingBanner')?.classList.remove('active');
+}
 async function loadRemoteExample(manifestUrl){
   setStatus('inputStatus','warn','Loading example…');
   const res = await fetch(manifestUrl);
@@ -3827,11 +3842,14 @@ if (window.PLEW_HUGO){
   }
 }
 if (window.PLEW_EXAMPLE){
+  showDatasetLoading();
   loadRemoteExample(window.PLEW_EXAMPLE).then(()=>{
     if (window.PLEW_SETUP) return loadRemoteSetup(window.PLEW_SETUP);
   }).catch(e=>{
     console.error(e);
     setStatus('inputStatus','err','Could not load the example dataset.');
+  }).finally(()=>{
+    hideDatasetLoading();
   });
 }
 </script>
