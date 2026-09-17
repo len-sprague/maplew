@@ -3833,6 +3833,7 @@ if (window.PLEW_HUGO){
     nav.style.display = '';
     const a = nav.querySelector('a');
     if (a && window.PLEW_EXAMPLES_INDEX) a.href = window.PLEW_EXAMPLES_INDEX;
+    if (a && window.PLEW_EXAMPLE) a.textContent = '← Example datasets';
   }
   const guide = document.getElementById('guideNav');
   if (guide){
