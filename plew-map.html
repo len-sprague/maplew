@@ -466,6 +466,8 @@ input[type=checkbox], input[type=radio] { accent-color:#4ecdc4; }
       <div class="section-title"><span>Display</span></div>
       <label class="field">Point size — scales all points: <span id="baseSizeVal">9</span> px</label>
       <input type="range" id="baseSize" min="2" max="30" value="9" oninput="onDisplayChange()">
+      <div class="inline"><input type="checkbox" id="zoomScaleChk" checked onchange="onDisplayChange()"><label for="zoomScaleChk">Marker size follows map zoom</label></div>
+      <div class="hint"><b>On</b> (default): points, strokes &amp; the graticule grow/shrink together with the map as you zoom. <b>Off</b>: they hold a constant on-screen size at every zoom level. Either way, size no longer jumps when you toggle Mercator, click a point, or edit a record.</div>
       <label class="field">Opacity: <span id="opacityVal">0.9</span></label>
       <input type="range" id="opacity" min="0.1" max="1" step="0.05" value="0.9" oninput="onDisplayChange()">
       <div class="inline"><input type="checkbox" id="strokeChk" checked onchange="onDisplayChange()"><label for="strokeChk">Outline points</label></div>
@@ -815,6 +817,18 @@ function mapZoomBy(factor, clientX, clientY){
   S.view.ty = ly - (ly - S.view.ty) * (ns / old);
   S.view.scale = ns;
   applyViewTransform();
+  // Fixed on-screen size depends on the current zoom level, so it needs a
+  // re-render on every zoom step. "Scale with zoom" mode doesn't — the CSS
+  // transform above already carries markers along with the map for free.
+  if (S.imageSet && !zoomScalesMarkers()) scheduleZoomRerender();
+}
+let zoomRerenderRAF = null;
+function scheduleZoomRerender(){
+  if (zoomRerenderRAF) return;
+  zoomRerenderRAF = requestAnimationFrame(()=>{
+    zoomRerenderRAF = null;
+    renderAll();
+  });
 }
 let panState = null;
 let mapDidPan = false;
@@ -1205,6 +1219,7 @@ function displaySnapshot(){
     baseSize: document.getElementById('baseSize').value,
     opacity: document.getElementById('opacity').value,
     stroke: document.getElementById('strokeChk').checked,
+    zoomScale: document.getElementById('zoomScaleChk').checked,
     ring: document.getElementById('ringChk').checked,
     grat: document.getElementById('gratChk').checked,
     jitter: document.getElementById('jitterChk').checked,
@@ -1221,7 +1236,7 @@ function applyDisplaySnapshot(d){
     if (chk) el.checked = !!v; else el.value = v;
   };
   set('baseSize', d.baseSize); set('opacity', d.opacity);
-  set('strokeChk', d.stroke, true); set('ringChk', d.ring, true);
+  set('strokeChk', d.stroke, true); set('zoomScaleChk', d.zoomScale, true); set('ringChk', d.ring, true);
   set('gratChk', d.grat, true); set('jitterChk', d.jitter, true);
   set('dragChk', d.drag, true); set('addChk', d.addPoint, true);
   set('mapLegendChk', d.mapLegend, true);
@@ -3160,7 +3175,14 @@ function renderAll(){
 
   const opacity = Number(document.getElementById('opacity').value);
   const stroke = document.getElementById('strokeChk').checked;
-  const scale = S.imgW / (document.getElementById('overlay').getBoundingClientRect().width || S.imgW);
+  // clientWidth is a pure CSS layout measurement, unaffected by the pan/zoom
+  // transform on #mapZoomWrap — unlike getBoundingClientRect(), which bakes in
+  // whatever zoom level happens to be active. That's what kept re-rendering
+  // (toggling Mercator, clicking a point, saving/canceling a record, etc.)
+  // from silently re-deriving a different size mid-zoom.
+  const overlayEl = document.getElementById('overlay');
+  const baseScale = S.imgW / (overlayEl.clientWidth || S.imgW);
+  const scale = zoomScalesMarkers() ? baseScale : baseScale / S.view.scale;
   const baseR = Number(document.getElementById('baseSize').value);
   const k = baseR / 9;   // global multiplier from the size slider
   const ringMode = !!S.enc.size.col && document.getElementById('ringChk').checked;
@@ -3275,6 +3297,7 @@ function jitterPx(stackIndex, stackSize, baseR, marginPx){
   return [Math.cos(angle) * radius, Math.sin(angle) * radius];
 }
 function jitterOn(){ return document.getElementById('jitterChk')?.checked; }
+function zoomScalesMarkers(){ return document.getElementById('zoomScaleChk')?.checked ?? true; }
 function maybeAutoJitter(){
   if (!S.data.length || !S.locX || !S.locY) return;
   const info = buildStackInfo(S.data);
