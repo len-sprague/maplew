@@ -122,6 +122,21 @@ input[type=checkbox], input[type=radio] { accent-color:#4ecdc4; }
 .map-zoom-grip { cursor:grab; padding:0 2px; color:#6b7680; font-size:0.62rem; letter-spacing:-0.12em; user-select:none; line-height:1; flex-shrink:0; }
 .map-zoom-grip:hover { color:#9aa5b0; }
 .map-zoom-bar.dragging-grip .map-zoom-grip { cursor:grabbing; }
+.map-legend-panel { position:absolute; left:8px; bottom:8px; z-index:5; max-width:min(260px, calc(100% - 16px)); background:rgba(26,31,38,0.92); border:1px solid #2d3640; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,0.35); touch-action:none; display:none; }
+.map-legend-panel.visible { display:block; }
+.map-legend-panel.moved { left:auto; bottom:auto; }
+.map-legend-panel-head { display:flex; align-items:center; gap:6px; padding:4px 8px; border-bottom:1px solid #2d3640; }
+.map-legend-panel.minimized .map-legend-panel-head { border-bottom:none; }
+.map-legend-grip { cursor:grab; color:#6b7680; font-size:0.62rem; letter-spacing:-0.12em; user-select:none; line-height:1; flex-shrink:0; }
+.map-legend-grip:hover { color:#9aa5b0; }
+.map-legend-panel.dragging-grip .map-legend-grip { cursor:grabbing; }
+.map-legend-panel-title { flex:1; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.05em; color:#8a949e; }
+.map-legend-toggle { background:none; border:none; color:#8a949e; cursor:pointer; font-size:0.85rem; padding:0 2px; line-height:1; }
+.map-legend-toggle:hover { color:#e6e9ec; }
+.map-legend-body { padding:8px 10px; max-height:min(45vh, 320px); overflow-y:auto; font-size:0.74rem; }
+.map-legend-panel.minimized .map-legend-body { display:none; }
+.map-legend-body .legend-item { margin-top:5px; }
+.map-legend-body .legend-item:first-child { margin-top:0; }
 .map-zoom-btn { padding:4px 10px; min-width:30px; font-size:0.85rem; line-height:1; }
 .map-zoom-label { font-size:0.68rem; color:#9aa5b0; min-width:38px; text-align:center; }
 .map-stage.panning { cursor:grabbing !important; }
@@ -458,6 +473,8 @@ input[type=checkbox], input[type=radio] { accent-color:#4ecdc4; }
       <div class="hint" id="ringHint" style="display:none;">Fill shape keeps the base size &amp; color; an independent open ring encodes the size variable — the two channels are visually de-linked.</div>
       <div class="inline"><input type="checkbox" id="gratChk" onchange="onDisplayChange()"><label for="gratChk">Lat/lon graticule</label></div>
       <div class="hint" id="gratHint" style="display:none;">Grid lines are drawn in <b>data space</b> through the calibration — so Mercator shows its unequal latitude spacing, and affine calibrations show tilt.</div>
+      <div class="inline"><input type="checkbox" id="mapLegendChk" checked onchange="onDisplayChange()"><label for="mapLegendChk">Show legend on map</label></div>
+      <div class="hint">Mirrors the Legend section below directly on the plot, so it stays visible even with the sidebar collapsed. Drag its <b>⋮⋮</b> grip to move it; the <b>−</b>/<b>+</b> button minimizes it.</div>
       <div class="inline" style="margin-top:8px;"><input type="checkbox" id="jitterChk" onchange="onDisplayChange()"><label for="jitterChk"><b>Spread stacked points</b></label></div>
       <div class="hint" id="jitterHint">When several records share the same coordinates (e.g. municipality centroids), nudge them apart on the map. <b>Visual only</b> — saved CSV coordinates stay unchanged.</div>
       <div class="hint" style="margin-top:8px;">Map navigation: <b>scroll</b> to zoom · <b>drag</b> the map to pan · <b>+/−</b> on the map corner · drag the <b>⋮⋮</b> grip to move those controls · <b>⌂</b> resets view.</div>
@@ -504,6 +521,14 @@ input[type=checkbox], input[type=radio] { accent-color:#4ecdc4; }
             <button type="button" class="btn map-zoom-btn" onclick="mapZoomBy(1/1.25)" title="Zoom out">−</button>
             <button type="button" class="btn map-zoom-btn" onclick="resetMapView()" title="Reset zoom">⌂</button>
             <span class="map-zoom-label" id="mapZoomLabel">100%</span>
+          </div>
+          <div class="map-legend-panel" id="mapLegendPanel">
+            <div class="map-legend-panel-head">
+              <span class="map-legend-grip" id="mapLegendGrip" title="Drag to move · double-click to reset position">⋮⋮</span>
+              <span class="map-legend-panel-title">Legend</span>
+              <button type="button" class="map-legend-toggle" id="mapLegendToggleBtn" onclick="toggleMapLegend()" title="Minimize legend">−</button>
+            </div>
+            <div class="map-legend-body" id="mapLegendBody"></div>
           </div>
         </div>
       </div>
@@ -606,6 +631,8 @@ const S = {
   basemaps:[], activeBasemapId:null,
   view:{ scale:1, tx:0, ty:0 },
   zoomBarPos:null,
+  legendPanelPos:null,
+  legendPanelMinimized:false,
   editingRow:null, editingIsNew:false,
   originalData:[],
   undoStack:[], redoStack:[],
@@ -698,6 +725,78 @@ let zoomBarDrag = null;
     bar.classList.remove('dragging-grip');
   });
 })();
+function applyLegendPanelPos(){
+  const panel = document.getElementById('mapLegendPanel');
+  if (!panel) return;
+  if (S.legendPanelPos === null){
+    panel.classList.remove('moved');
+    panel.style.left = '';
+    panel.style.top = '';
+    panel.style.bottom = '';
+  } else {
+    panel.classList.add('moved');
+    panel.style.left = S.legendPanelPos.x + 'px';
+    panel.style.top = S.legendPanelPos.y + 'px';
+    panel.style.bottom = 'auto';
+  }
+}
+function clampLegendPanelPos(x, y){
+  const panel = document.getElementById('mapLegendPanel');
+  const stage = document.getElementById('mapStage');
+  if (!panel || !stage) return { x, y };
+  const pad = 4;
+  const maxX = Math.max(pad, stage.clientWidth - panel.offsetWidth - pad);
+  const maxY = Math.max(pad, stage.clientHeight - panel.offsetHeight - pad);
+  return { x: Math.min(maxX, Math.max(pad, x)), y: Math.min(maxY, Math.max(pad, y)) };
+}
+function resetLegendPanelPos(){
+  S.legendPanelPos = null;
+  applyLegendPanelPos();
+}
+function toggleMapLegend(){
+  S.legendPanelMinimized = !S.legendPanelMinimized;
+  document.getElementById('mapLegendPanel')?.classList.toggle('minimized', S.legendPanelMinimized);
+  const btn = document.getElementById('mapLegendToggleBtn');
+  if (btn){ btn.textContent = S.legendPanelMinimized ? '+' : '−'; btn.title = S.legendPanelMinimized ? 'Expand legend' : 'Minimize legend'; }
+}
+let legendPanelDrag = null;
+(function initLegendPanelDrag(){
+  const grip = document.getElementById('mapLegendGrip');
+  const panel = document.getElementById('mapLegendPanel');
+  if (!grip || !panel) return;
+  grip.addEventListener('mousedown', e=>{
+    if (e.button !== 0) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const stage = document.getElementById('mapStage');
+    const panelRect = panel.getBoundingClientRect();
+    const stageRect = stage.getBoundingClientRect();
+    if (S.legendPanelPos === null){
+      S.legendPanelPos = clampLegendPanelPos(panelRect.left - stageRect.left, panelRect.top - stageRect.top);
+      applyLegendPanelPos();
+    }
+    legendPanelDrag = { x:e.clientX, y:e.clientY, bx:S.legendPanelPos.x, by:S.legendPanelPos.y };
+    panel.classList.add('dragging-grip');
+  });
+  grip.addEventListener('dblclick', e=>{
+    e.preventDefault();
+    e.stopPropagation();
+    resetLegendPanelPos();
+  });
+  document.addEventListener('mousemove', e=>{
+    if (!legendPanelDrag) return;
+    S.legendPanelPos = clampLegendPanelPos(
+      legendPanelDrag.bx + (e.clientX - legendPanelDrag.x),
+      legendPanelDrag.by + (e.clientY - legendPanelDrag.y)
+    );
+    applyLegendPanelPos();
+  });
+  document.addEventListener('mouseup', ()=>{
+    if (!legendPanelDrag) return;
+    legendPanelDrag = null;
+    panel.classList.remove('dragging-grip');
+  });
+})();
 function resetMapView(){
   S.view = { scale:1, tx:0, ty:0 };
   applyViewTransform();
@@ -723,6 +822,7 @@ function canPanMap(e){
   if (!S.imageSet || S.calib.placing >= 0) return false;
   if (e.button !== 0) return false;
   if (e.target.closest('.map-zoom-bar')) return false;
+  if (e.target.closest('.map-legend-panel')) return false;
   if (e.target.closest('.pt-shape')) return false;
   if (e.target.closest('.plot-label-attached')) return false;
   return true;
@@ -1109,7 +1209,8 @@ function displaySnapshot(){
     grat: document.getElementById('gratChk').checked,
     jitter: document.getElementById('jitterChk').checked,
     drag: document.getElementById('dragChk').checked,
-    addPoint: document.getElementById('addChk').checked
+    addPoint: document.getElementById('addChk').checked,
+    mapLegend: document.getElementById('mapLegendChk').checked
   };
 }
 function applyDisplaySnapshot(d){
@@ -1123,6 +1224,7 @@ function applyDisplaySnapshot(d){
   set('strokeChk', d.stroke, true); set('ringChk', d.ring, true);
   set('gratChk', d.grat, true); set('jitterChk', d.jitter, true);
   set('dragChk', d.drag, true); set('addChk', d.addPoint, true);
+  set('mapLegendChk', d.mapLegend, true);
   onDisplayChange();
 }
 function buildVisualizationConfig(){
@@ -3242,6 +3344,8 @@ window.addEventListener('resize', ()=>{
   if (!S.imageSet) return;
   if (S.zoomBarPos) S.zoomBarPos = clampZoomBarPos(S.zoomBarPos.x, S.zoomBarPos.y);
   applyZoomBarPos();
+  if (S.legendPanelPos) S.legendPanelPos = clampLegendPanelPos(S.legendPanelPos.x, S.legendPanelPos.y);
+  applyLegendPanelPos();
   renderAll();
 });
 window.addEventListener('beforeunload', e=>{
@@ -3252,7 +3356,6 @@ window.addEventListener('beforeunload', e=>{
 
 // ── Legend ──
 function renderLegend(){
-  const body = document.getElementById('legendBody');
   let html = '';
   const cc = S.enc.color.col;
   if (cc){
@@ -3307,7 +3410,15 @@ function renderLegend(){
       html += `<div class="legend-item filterable${on?'':' filtered-off'}" onclick="toggleFilter('${escAttr(shc)}','${escAttr(v)}')" title="Click to show/hide"><svg width="16" height="16" viewBox="-9 -9 18 18">${shapeGlyph(sh)}</svg>${escHtml(v)}</div>`;
     });
   }
-  body.innerHTML = html || '<div class="hint">Choose columns above to build the legend.</div>';
+  document.getElementById('legendBody').innerHTML = html || '<div class="hint">Choose columns above to build the legend.</div>';
+  const mapBody = document.getElementById('mapLegendBody');
+  if (mapBody) mapBody.innerHTML = html;
+  const panel = document.getElementById('mapLegendPanel');
+  if (panel){
+    const plotReady = S.data.length>0 && S.imageSet && S.calib.valid && !!S.locX && !!S.locY;
+    const showOnMap = document.getElementById('mapLegendChk')?.checked !== false;
+    panel.classList.toggle('visible', plotReady && !!html && showOnMap);
+  }
 }
 function shapeGlyph(sh){
   const s = 'fill="none" stroke="#cfd6dd" stroke-width="1.6"';
