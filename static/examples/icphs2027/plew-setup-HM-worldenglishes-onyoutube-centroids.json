@@ -1,0 +1,116 @@
+{
+  "version": 1,
+  "locX": "loc::lon",
+  "locY": "loc::lat",
+  "mercator": false,
+  "calib": {
+    "mode": "edges",
+    "mercator": false,
+    "locX": "loc::lon",
+    "locY": "loc::lat",
+    "L": -180,
+    "R": 180,
+    "T": 90,
+    "B": -90
+  },
+  "enc": {
+    "color": {
+      "col": "type",
+      "type": "categorical",
+      "ramp": "viridis",
+      "catColors": {}
+    },
+    "size": {
+      "col": "accentedness",
+      "type": "categorical",
+      "minPx": 6,
+      "maxPx": 8
+    },
+    "shape": {
+      "col": "disturbance"
+    }
+  },
+  "filters": {
+    "type": {
+      "casual": true,
+      "documentary": true,
+      "interview": true,
+      "news": true
+    },
+    "disturbance": {
+      "no": true,
+      "yes": true
+    },
+    "accentedness": {
+      "medium": true,
+      "strong": true,
+      "weak": true
+    }
+  },
+  "speakerFilter": {
+    "multiOnly": false,
+    "selected": []
+  },
+  "display": {
+    "baseSize": "10",
+    "opacity": "0.9",
+    "stroke": true,
+    "zoomScale": false,
+    "ring": false,
+    "grat": false,
+    "jitter": true,
+    "drag": false,
+    "addPoint": false,
+    "mapLegend": true
+  },
+  "roleOverrides": {},
+  "columnVisibility": {
+    "ID": true,
+    "desc::source": true,
+    "type": true,
+    "desc::subtitle": true,
+    "disturbance": true,
+    "desc::disturbancetype": true,
+    "continent": true,
+    "desc::country": true,
+    "position": true,
+    "desc::full name": true,
+    "topic": true,
+    "accentedness": true,
+    "video_url": true,
+    "desc::title": true,
+    "desc::pubdate": true,
+    "desc::notes": true,
+    "loc::lat": true,
+    "loc::lon": true,
+    "desc::multi-region accent": true
+  },
+  "columnRecordOrder": [
+    "ID",
+    "desc::source",
+    "type",
+    "desc::subtitle",
+    "disturbance",
+    "desc::disturbancetype",
+    "continent",
+    "desc::country",
+    "position",
+    "desc::full name",
+    "topic",
+    "accentedness",
+    "video_url",
+    "desc::title",
+    "desc::pubdate",
+    "desc::notes",
+    "loc::lat",
+    "loc::lon",
+    "desc::multi-region accent"
+  ],
+  "activeBasemapId": "ne_110m_coastline_equirectangular.png",
+  "labels": {
+    "title": "",
+    "xAxis": "",
+    "yAxis": "",
+    "mode": "attached"
+  }
+}

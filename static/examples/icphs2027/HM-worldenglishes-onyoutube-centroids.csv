@@ -1,0 +1,106 @@
+﻿ID,desc::source,type,desc::subtitle,disturbance,desc::disturbancetype,continent,desc::country,position,desc::full name,topic,accentedness,video_url,desc::title,desc::pubdate,desc::notes,loc::lat,loc::lon,desc::multi-region accent
+__PLEWMAP_CALIB__,"{""mode"": ""edges"", ""mercator"": false, ""locX"": ""loc::lon"", ""locY"": ""loc::lat"", ""L"": -180, ""R"": 180, ""T"": 90, ""B"": -90}",,,,,,,,,,,,,,,,,
+1,dw news,news,no,yes,noise,asia,india,expert,vibha dhawan,business,strong,https://youtu.be/1F76txx29tA?t=114,"Rising prices, empty tanks: Energy shock dampens Asia's boom | DW News ",2026/5/22,https://youtu.be/1F76txx29tA?t=222,23.586300567746722,81.17300408530181,no
+2,dw news,news,no,no,na,europe,germany,expert,frank malerius,business,medium,https://youtu.be/1F76txx29tA?t=312,"Rising prices, empty tanks: Energy shock dampens Asia's boom | DW News ",2026/5/22,,51.08304539800482,10.426171427430804,no
+3,dw news,news,no,no,na,asia,indonesia,expert,putra adhiguna,business,medium,https://youtu.be/1F76txx29tA?t=422,"Rising prices, empty tanks: Energy shock dampens Asia's boom | DW News ",2026/5/22,,0.15591979959037652,113.96538246847302,no
+4,dw news,news,no,no,na,asia,india,anchor,biresh banerjee,politics,medium,https://youtu.be/ge1YvfggCbQ?t=766,Will Asian and NATO allies secure the Strait of Hormuz? | DW News,2026/3/16,,23.586300567746722,81.17300408530181,no
+5,dw news,news,no,yes,music,europe,ireland,reporter,arthur sullivan,business,medium,https://youtu.be/AVKbXdSOdD4?t=56,A united African economy: The impossible dream? | Business Beyond ,2025/3/15,,53.30489539816495,-8.241128545554096,no
+6,dw news,news,no,no,na,africa,nigeria,reporter,flourish ubanyi,business,strong,https://youtu.be/AVKbXdSOdD4?t=215,A united African economy: The impossible dream? | Business Beyond ,2025/3/15,,9.61029352034213,8.147714845256194,no
+7,dw news,news,no,no,na,africa,ghana?,expert,enoch randy aikins,business,strong,https://youtu.be/AVKbXdSOdD4?t=313,A united African economy: The impossible dream? | Business Beyond ,2025/3/15,,7.94530467243628,-1.219233362526581,no
+8,dw news,news,no,yes,rev,africa,ghana?,expert,emmanuel owusu-sekyere,business,strong,https://youtu.be/AVKbXdSOdD4?&t=488,A united African economy: The impossible dream? | Business Beyond ,2025/3/15,,7.94530467243628,-1.219233362526581,no
+9,dw africa,news,no,no,na,africa,zimbabwe?,expert,farai marapira,politics,strong,https://youtu.be/FpWNYnvBZ-k?t=169,DW News Africa with Tomi Oladipo ,2026/5/2,,-18.92700121981475,29.717829640720844,no
+10,dw africa,news,no,no,na,africa,zimbabwe?,expert,tendai biti,politics,strong,https://youtu.be/FpWNYnvBZ-k?t=341,DW News Africa with Tomi Oladipo ,2026/5/2,,-18.92700121981475,29.717829640720844,no
+11,dw africa,news,no,yes,noise,africa,kenya,reporter,felix maringa,politics,strong,https://youtu.be/FpWNYnvBZ-k?t=1006,DW News Africa with Tomi Oladipo ,2026/5/2,,0.6899182318376179,37.95309411262371,no
+12,dw africa,news,no,yes,noise,africa,kenya?,expert,raymond kitunga,politics,medium,https://youtu.be/FpWNYnvBZ-k?t=1093,DW News Africa with Tomi Oladipo ,2026/5/2,,0.6899182318376179,37.95309411262371,no
+13,dw africa,news,no,yes,rev,africa,south africa?,expert,hiten parmar,politics,strong,https://youtu.be/FpWNYnvBZ-k?t=1175,DW News Africa with Tomi Oladipo ,2026/5/2,,-28.55361930679731,24.75252746489084,no
+14,dw africa,news,yes,yes,noise,africa,zambia,reporter,kathy short,politics,strong,https://youtu.be/BcyxkvqZ6Ng?t=48,What will Hichilema's second term mean for Zambians?,2026/8/19,,-13.162832953186246,27.75521363430896,no
+15,dw africa,news,yes,yes,noise,africa,zambia,interviewee,na,politics,strong,https://youtu.be/BcyxkvqZ6Ng?t=98,What will Hichilema's second term mean for Zambians?,2026/8/19,,-13.162832953186246,27.75521363430896,no
+16,dw africa,news,yes,yes,noise,africa,zambia,expert,mulambo haimbe,politics,strong,https://youtu.be/BcyxkvqZ6Ng?t=115,What will Hichilema's second term mean for Zambians?,2026/8/19,,-13.162832953186246,27.75521363430896,no
+17,dw documentary,documentary,yes,yes,noise,asia,pakistan,interviewee,hira,culture,medium,https://youtu.be/CCtJ4Ta_1-c?t=260,"Beauty, body and mind / HER - Women in Asia (Season 1) | DW Documentary ",2021/7/5,,30.116188371410882,69.08835090769651,no
+18,dw documentary,documentary,yes,yes,music,asia,indonesia,interviewee,haryati lawidjaja,culture,strong,https://youtu.be/CCtJ4Ta_1-c?t=997,"Beauty, body and mind / HER - Women in Asia (Season 1) | DW Documentary ",2021/7/5,,0.15591979959037652,113.96538246847302,no
+19,dw documentary,documentary,yes,yes,music,asia,malaysia,interviewee,eka shereen,culture,strong,https://youtu.be/3YZIObdGr_A?t=984,"Women, mental health and equality / HER - Women in Asia (Season 1) | DW Documentary ",2021/7/11,,3.6716608556387857,114.63330303992869,no
+20,dw documentary,documentary,yes,yes,music,asia,indonesia,interviewee,stephanie hermawan,culture,strong,https://youtu.be/3YZIObdGr_A?t=816,"Women, mental health and equality / HER - Women in Asia (Season 1) | DW Documentary ",2021/7/11,,0.15591979959037652,113.96538246847302,no
+21,dw documentary,documentary,yes,yes,music,asia,india,interviewee,medhavi,culture,medium,https://youtu.be/yRV4JTA3-5c?t=97,"Traditions, roots and independence / HER - Women in Asia (Season 2) | DW Documentary ",2022/8/1,https://youtu.be/yRV4JTA3-5c?t=484,23.586300567746722,81.17300408530181,no
+22,dw documentary,documentary,yes,yes,music,asia,philippines,interviewee,diwa malaya,culture,medium,https://youtu.be/yRV4JTA3-5c?t=290,"Traditions, roots and independence / HER - Women in Asia (Season 2) | DW Documentary ",2022/8/1,,15.586542251094242,121.82208941416745,no
+23,bbc world service,documentary,no,no,na,asia,singapore,expert,wong siew hoong,culture,medium,https://youtu.be/liyn5xWvx44?t=445,,,,1.3528251890006349,103.81025757634053,no
+24,india art fair,documentary,yes,yes,music,asia,india,artist,tito stanley,culture,strong,https://youtu.be/_-lX_XuRpoo?t=28,,,https://youtu.be/_-lX_XuRpoo?t=64,23.586300567746722,81.17300408530181,no
+25,louisiana channel,documentary,no,no,na,europe,italy,artist,lulu nuti,culture,strong,https://youtu.be/9YxBXIQQ_Nw?t=154,,,https://youtu.be/9YxBXIQQ_Nw?t=383,42.98201127614267,12.763657166123137,no
+26,louisiana channel,documentary,no,no,na,mix,egypt-armenia,artist,anna boghiguian,culture,strong,https://youtu.be/XV6kCAP1KU8?t=121,,,,26.60517034450628,30.240135435012338,yes
+26,louisiana channel,documentary,no,no,na,mix,egypt-armenia,artist,anna boghiguian,culture,strong,https://youtu.be/XV6kCAP1KU8?t=121,,,,40.17841274230679,45.05490831965259,yes
+27,louisiana channel,documentary,no,no,na,europe,austria,artist,eva schlegel,culture,medium,https://youtu.be/XTDJzLeZ2eg?t=129,,,,47.631858269895794,13.797778364631036,no
+28,louisiana channel,documentary,no,no,na,europe,france,artist,marguerite humeau,culture,strong,https://youtu.be/IH5QsZLDUDM?t=34,,,,46.6423682169416,2.1940236627886227,no
+29,louisiana channel,documentary,no,no,na,europe,serbia,artist,marina abramovic,culture,weak,https://youtu.be/qyKXw24JX5g?t=200,,,,44.02679870131969,20.85677444395745,no
+30,louisiana channel,documentary,no,no,na,europe,denmark-iceland,artist,olafur eliasson,culture,weak,https://youtu.be/qyKXw24JX5g?t=186,,,,56.00118817971057,9.378670542409406,yes
+30,louisiana channel,documentary,no,no,na,europe,denmark-iceland,artist,olafur eliasson,culture,weak,https://youtu.be/qyKXw24JX5g?t=186,,,,65.12360920205514,-19.05682967106099,yes
+31,louisiana channel,documentary,no,no,na,asia,iran,artist,shirazeh hourshiary,culture,medium,https://youtu.be/H7Dtu6go7Qo?t=266,,,,32.906023742890056,54.237077001065444,no
+32,louisiana channel,documentary,no,no,na,asia,japan,artist,yoko ono,culture,medium,https://youtu.be/KnOOztsKJ-s?t=93,,,,36.76738832597829,137.46934234351835,no
+33,louisiana channel,documentary,no,no,na,europe,france,artist,sophie calle,culture,strong,https://youtu.be/vyqiEfaH0sA?,,,,46.6423682169416,2.1940236627886227,no
+34,louisiana channel,documentary,no,no,na,europe,netherland,artist,marijke van warmerdam,culture,weak,https://youtu.be/QsizmPhNo54?t=49,,,,52.134054128923886,5.554136426128487,no
+35,louisiana channel,documentary,no,no,na,africa,ethiopia,artist,tesfaye urgessa,culture,medium,https://youtu.be/-kVjfp_RK4E?t=98,,,,8.729389557048396,39.914902886544276,no
+36,louisiana channel,documentary,no,no,na,europe,spain,artist,cristina banban,culture,medium,https://youtu.be/AgqvHEK93zY?t=66,,,,40.365008336683836,-3.6516251409956983,no
+37,spicy moustache,casual,no,no,na,europe,italy,vlogger,alessandro vitale,culture,strong,https://youtu.be/zIfqWf5Yfj0?t=68,,,,42.98201127614267,12.763657166123137,no
+38,this is katie,casual,no,no,na,asia,korea,vlogger,katie,culture,medium,https://youtu.be/kyHVFDujn4M?t=597,,,,36.402386712544114,127.76224551357649,no
+39,france 24 english,interview,no,no,na,europe,france,vlogger,alexis gabriel ainouz,culture,medium,https://youtu.be/NTUi_DA6sLs?t=68,,,,46.6423682169416,2.1940236627886227,no
+40,talks at google,interview,no,no,na,asia,korea,vlogger,maangchi,culture,strong,https://youtu.be/EScvgGxFq4Q?t=1338,,,,36.402386712544114,127.76224551357649,no
+41,talks at google,interview,no,no,na,asia,japan,tv,marie kondo,culture,strong,https://youtu.be/w1-HMMX_NR8?t=2,,,,36.76738832597829,137.46934234351835,no
+42,talks at google,interview,no,no,na,euroasia,russia,expert,Ilya Strebulaev,business,medium,https://youtu.be/2fEyffMkUxA?t=234,,,,59.039434214106194,98.6704990698032,no
+43,the late show with stephen colbert,interview,no,no,na,asia,japan,actor,hiroyuki sanada,entertainment,medium,https://youtu.be/xrM6FQIIL64?t=158,,,,36.76738832597829,137.46934234351835,no
+44,SAG-AFTRA foundation,interview,no,no,na,asia,japan,actor,takehiro hira,entertainment,weak,https://youtu.be/watch?v=dEM9GY9-raI,,,,36.76738832597829,137.46934234351835,no
+45,wired,interview,no,no,na,asia,hong kong,actor,jacky chan,entertainment,strong,https://youtu.be/e0IWSyc5AQQ?t=97,,,,22.3193,114.1694,no
+46,the kelly clarkson show,interview,no,no,na,asia,korea,actor,lee bjun-hun,entertainment,medium,https://youtu.be/ngh7oyERjDA?t=45,,,,36.402386712544114,127.76224551357649,no
+47,nhk world japan,news,no,no,na,asia,japan,anchor,na,business,medium,https://youtu.be/coHMpWAbFNY,,,https://www3.nhk.or.jp/nhkworld/en/news/anchors/,36.76738832597829,137.46934234351835,no
+48,nhk world japan,news,no,no,na,africa,south africa,anchor,tsietsi monare,report,medium,https://youtu.be/YMBtGavZnAE,,,https://www.instagram.com/tsietsi_monare/,-28.55361930679731,24.75252746489084,no
+49,nhk world japan,news,no,no,na,asia,japan,anchor,na,business,medium,https://youtu.be/coHMpWAbFNY?t=334,,,,36.76738832597829,137.46934234351835,no
+50,nhk world japan,news,no,yes,noise,asia,japan,reporter,kyoko tashiro,report,medium,https://youtu.be/Z3NIgECWahQ?t=10,,,,36.76738832597829,137.46934234351835,no
+51,nhk world japan,news,no,no,na,asia,japan,anchor,ayako kumei,politics,weak,https://youtu.be/Ea17SgCmEOc?t=11,,,,36.76738832597829,137.46934234351835,no
+52,nhk world japan,news,no,no,na,asia,japan,anchor,hiroaki yamaguchi,politics,weak,https://youtu.be/Ea17SgCmEOc?t=26,,,,36.76738832597829,137.46934234351835,no
+53,nhk world japan,news,no,no,na,europe,ukraine,expert,denys shtilierman,politics,strong,https://youtu.be/Ea17SgCmEOc?t=68,,,,48.657532515563794,31.27377208442636,no
+54,nhk world japan,news,no,no,na,europe,japan,reporter,eri takasu,politics,weak,https://youtu.be/Ea17SgCmEOc?t=225,,,,36.76738832597829,137.46934234351835,no
+55,nhk world japan,news,no,yes,noise,asia,philippines,reporter,celerina del mundo-monte,politics,strong,https://youtu.be/E37aARSyFEE?t=26,,,,15.586542251094242,121.82208941416745,no
+56,nhk world japan,news,no,no,na,asia,japan,anchor,ryuichi yoshikawa,politics,weak,https://youtu.be/E37aARSyFEE?t=9,,,,36.76738832597829,137.46934234351835,no
+57,nhk world japan,news,no,no,na,asia,japan,anchor,ryuichi yoshikawa,culture,weak,https://youtu.be/V36uLiz7K5E,,,,36.76738832597829,137.46934234351835,no
+58,nhk world japan,news,no,no,na,asia,japan,anchor,naoko nishiumi,politics,weak,https://youtu.be/C-nhpEsuTG4,,,,36.76738832597829,137.46934234351835,no
+59,nhk world japan,news,no,no,na,asia,japan,expert,tomoko akane,politics,strong,https://youtu.be/C-nhpEsuTG4?t=59,,,,36.76738832597829,137.46934234351835,no
+60,nhk world japan,news,no,no,na,asia,japan,expert,go kamoshida,politics,medium,https://youtu.be/C-nhpEsuTG4?t=107,,,,36.76738832597829,137.46934234351835,no
+61,nhk world japan,news,no,no,na,asia,japan,anchor,maria sato,politics,weak,https://youtu.be/u41Xt__4NG4,,,,36.76738832597829,137.46934234351835,no
+62,bbc news africa,documentary,no,yes,music,africa,kenya,reporter,tom odula,culture,strong,https://youtu.be/-wCfTAa-w4Y?t=2919,,,https://www.linkedin.com/in/tom-odula-93101824,0.6899182318376179,37.95309411262371,no
+63,bbc news africa,documentary,no,yes,music,africa,kenya,interviewee,abel olang,culture,strong,https://youtu.be/-wCfTAa-w4Y?t=999,,,,0.6899182318376179,37.95309411262371,no
+64,bbc news africa,documentary,yes,yes,music,africa,kenya,interviewee,migori,culture,strong,https://youtu.be/-wCfTAa-w4Y?t=1792,,,,0.6899182318376179,37.95309411262371,no
+65,bbc news africa,documentary,yes,yes,noise,africa,kenya,expert,joash olang,culture,strong,https://youtu.be/-wCfTAa-w4Y?t=2576,,,,0.6899182318376179,37.95309411262371,no
+66,criterion,interview,no,no,na,europe,france,actor,marion cotillard,entertainment,weak,https://youtu.be/sPP5CuNVNU8?t=9,,,,46.6423682169416,2.1940236627886227,no
+67,HeyUGuys,interview,no,no,na,europe,france,actor,audrey tautou,entertainment,medium,https://youtu.be/7u_oZvUrlmM?t=111,,,,46.6423682169416,2.1940236627886227,no
+68,The Tonight Show Starring Jimmy Fallon,interview,no,no,na,europe,germany,actor,matthias schweighoefer,entertainment,weak,https://youtu.be/SzIdSJBqvUM?t=26,,,,51.08304539800482,10.426171427430804,no
+69,vanibat,interview,no,yes,noise,europe,france,actor,alain delon,entertainment,weak,https://youtu.be/ABpVMOt0WEE?t=25,,,,46.6423682169416,2.1940236627886227,no
+70,Eva Gaelle Green - Page,interview,no,no,na,europe,france,actor,eva green,entertainment,weak,https://youtu.be/rKUs7xk8szY?t=51,,,,46.6423682169416,2.1940236627886227,no
+71,Variety,interview,no,no,na,europe,spain,actor,penelope cruz,entertainment,medium,https://youtu.be/n98up36diq4,,,,40.365008336683836,-3.6516251409956983,no
+72,The Late Show with Stephen Colbert,interview,no,no,na,europe,spain,actor,javier bardem,entertainment,medium,https://youtu.be/QLnFrq7DvK8?t=76,,,,40.365008336683836,-3.6516251409956983,no
+73,vanity fair,interview,no,no,na,europe,italy,actor,monica bellucci,entertainment,medium,https://youtu.be/_J2sHXgypXc,,,,42.98201127614267,12.763657166123137,no
+74,bbc,interview,no,no,na,europe,italy,actor,roberto benigni,entertainment,strong,https://youtu.be/d0ygjC553eE?t=13,,,,42.98201127614267,12.763657166123137,no
+75,dw news,news,no,yes,noise,europe,germany,reporter,jan-philipp scholz,politics,medium,https://youtu.be/qNXzK0M9Pxo?t=226,Spanish PM Sanchez under fire over Ceuta crisis | DW News ,2026/9/4,,51.08304539800482,10.426171427430804,no
+76,dw news,news,no,no,na,europe,spain,expert,gemma pinyol-jimenez,politics,strong,https://youtu.be/qNXzK0M9Pxo?t=546,Spanish PM Sanchez under fire over Ceuta crisis | DW News ,2026/9/4,,40.365008336683836,-3.6516251409956983,no
+77,dw news,news,no,yes,music,asia,india,interviewee,matthew,politics,strong,https://youtu.be/Uv5luvQ3Mtg?t=107,"Debt, exploitation, burnout: The price many Indian students pay for a life in Germany | Reporter",2026/3/21,,23.586300567746722,81.17300408530181,no
+78,dw news,news,no,yes,music,asia,india,interviewee,chirag,politics,strong,https://youtu.be/Uv5luvQ3Mtg?t=80,"Debt, exploitation, burnout: The price many Indian students pay for a life in Germany | Reporter",2026/3/21,,23.586300567746722,81.17300408530181,no
+79,dw news,news,no,no,na,asia,india,expert,aju john,politics,strong,https://youtu.be/Uv5luvQ3Mtg?t=187,"Debt, exploitation, burnout: The price many Indian students pay for a life in Germany | Reporter",2026/3/21,https://www.bim.hu-berlin.de/de/pers/assoz/john,23.586300567746722,81.17300408530181,no
+80,dw news,news,no,no,na,europe,italy,expert,cecilia emma sottilotta,politics,medium,https://youtu.be/INt-owXh1Fc?t=110,Giorgia Meloni to set new record as longest serving Italian PM | DW News,2026/9/2,,42.98201127614267,12.763657166123137,no
+81,dw news,news,no,yes,music,euroasia,turkey,interviewee,doruk berberoglu,politics,medium,https://youtu.be/0QBh_fCvhaE?t=244,Why international students still choose Germany | DW News,2026/8/18,,38.93207363123396,35.56886764076691,no
+82,dw news,news,no,yes,music,asia,india,interviewee,shruti,politics,medium,https://youtu.be/0QBh_fCvhaE?t=353,Why international students still choose Germany | DW News,2026/8/18,,23.586300567746722,81.17300408530181,no
+83,dw news,news,no,yes,music,asia,india,interviewee,shravan,politics,medium,https://youtu.be/0QBh_fCvhaE?t=1053,Why international students still choose Germany | DW News,2026/8/18,,23.586300567746722,81.17300408530181,no
+84,dw news,news,no,yes,music,europe,albania,expert,konstandin xhaho,politics,strong,https://youtu.be/4k1Y2vtJdfo?t=59,Inside Europe's new billionaire playground | DW News ,2026/8/22,https://www.facebook.com/Fortebrachi/,41.14165894891656,20.061082767269493,no
+85,dw news,news,no,yes,music,europe,albania,expert,olsi nika,politics,strong,https://youtu.be/4k1Y2vtJdfo?t=102,Inside Europe's new billionaire playground | DW News ,2026/8/22,https://ecoalbania.org/olsi-nika/?lang=en,41.14165894891656,20.061082767269493,no
+86,dw news,news,no,yes,music,europe,albania,expert,edi rama,politics,medium,https://youtu.be/4k1Y2vtJdfo?t=170,Inside Europe's new billionaire playground | DW News ,2026/8/22,,41.14165894891656,20.061082767269493,no
+87,dw news,news,no,yes,music,europe,albania,expert,sokol kondi,politics,strong,https://youtu.be/4k1Y2vtJdfo?t=200,Inside Europe's new billionaire playground | DW News ,2026/8/22,,41.14165894891656,20.061082767269493,no
+88,dw news,news,no,yes,music,europe,albania,expert,aleksander trajce,politics,medium,https://youtu.be/4k1Y2vtJdfo?t=304,Inside Europe's new billionaire playground | DW News ,2026/8/22,https://ppnea.org/aleksander-trajce/?lang=en,41.14165894891656,20.061082767269493,no
+89,dw news,news,no,yes,music,europe,albania,expert,klodiana beshku,politics,medium,https://youtu.be/4k1Y2vtJdfo?t=429,Inside Europe's new billionaire playground | DW News ,2026/8/22,https://www.researchgate.net/profile/Klodiana-Beshku,41.14165894891656,20.061082767269493,no
+90,dw news,news,no,yes,music,asia,vietnam,expert,tien nguyen,business,weak,https://youtu.be/VQD6Fa-3yBs?t=233,Opportunity or exploitation: Vietnamese apprentices in Germany | DW News,2026/8/26,,16.517347170839393,105.91338832758704,no
+91,dw food,documentary,no,yes,music,europe,finland,interviewee,varpu rusila,culture,weak,https://youtu.be/57HYrItZiKc?t=140,Why Finns are obsessed with blueberries,2025/9/27,,65.01578959749911,25.65738433454702,no
+92,dw food,documentary,no,yes,music,europe,finland?,interviewee,na,culture,weak,https://youtu.be/57HYrItZiKc?t=307,Why Finns are obsessed with blueberries,2025/9/27,,65.01578959749911,25.65738433454702,no
+93,dw food,documentary,no,yes,music,europe,finland?,interviewee,na,culture,weak,https://youtu.be/57HYrItZiKc?t=312,Why Finns are obsessed with blueberries,2025/9/27,,65.01578959749911,25.65738433454702,no
+94,dw euromaxx,documentary,no,yes,music,europe,germany,reporter,ruben kalus,culture,medium,https://youtu.be/gBuAluQQB50?t=60,Why Finland is the happiest country in the world,2024/8/3,,51.08304539800482,10.426171427430804,no
+95,dw euromaxx,documentary,no,yes,music,europe,finland,interviewee,lena salmi,culture,strong,https://youtu.be/gBuAluQQB50?t=175,Why Finland is the happiest country in the world,2024/8/3,,65.01578959749911,25.65738433454702,no
+96,dw euromaxx,documentary,no,yes,music,europe,finland,expert,frank martela,culture,medium,https://youtu.be/gBuAluQQB50?t=259,Why Finland is the happiest country in the world,2024/8/3,,65.01578959749911,25.65738433454702,no
+97,dw euromaxx,documentary,no,yes,music,europe,finland,expert,tero kuitunen,culture,medium,https://youtu.be/gBuAluQQB50?t=360,Why Finland is the happiest country in the world,2024/8/3,,65.01578959749911,25.65738433454702,no
+98,dw euromaxx,documentary,no,yes,music,europe,macedonia,expert,luka balac,culture,weak,https://youtu.be/gBuAluQQB50?t=550,Why Finland is the happiest country in the world,2024/8/3,,41.59402890143112,21.70998923872772,no
+99,dw euromaxx,documentary,no,yes,music,europe,ukraine,expert,yevhen klopotenko,culture,strong,https://youtu.be/u27SfzKP3DY?t=12,Don’t call Ukrainian Borsch a soup. Here’s why.,2026/8/29,,48.657532515563794,31.27377208442636,no
+100,,,,,,,,,,,,,,,,0.0,-140.0,no
+101,,,,,,,,,,,,,,,,0.0,-140.0,no
+102,,,,,,,,,,,,,,,,0.0,-140.0,no
