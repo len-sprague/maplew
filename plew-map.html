@@ -341,7 +341,7 @@ input[type=checkbox], input[type=radio] { accent-color:#4ecdc4; }
         <div class="inline"><input type="checkbox" id="snapIncludeXChk" checked onchange="onSnapshotOptsChange()"><label for="snapIncludeXChk">X-axis label</label></div>
         <div class="inline"><input type="checkbox" id="snapIncludeYChk" checked onchange="onSnapshotOptsChange()"><label for="snapIncludeYChk">Y-axis label</label></div>
         <div class="inline"><input type="checkbox" id="snapIncludeLegendChk" checked onchange="onSnapshotOptsChange()"><label for="snapIncludeLegendChk">Legend</label></div>
-        <div class="hint" id="snapLegendHint" style="margin-top:4px;">Legend is captured as-shown on the map (position, minimized state). Needs the <b>Show legend on map</b> option (Display section) turned on.</div>
+        <div class="hint" id="snapLegendHint" style="margin-top:4px;">Legend is printed in its own margin to the right of the plot (so it never overlaps data), using its current minimized state. Needs the <b>Show legend on map</b> option (Display section) turned on.</div>
       </div>
       <div class="btn-row">
         <button class="btn" onclick="downloadVisualizationConfig()">📤 Export setup</button>
@@ -3867,30 +3867,29 @@ function loadImage(src){
 }
 // Rasterizes the on-map legend panel (a plain HTML overlay, not part of the
 // SVG — so it isn't captured by the overlay clone below) via html2canvas, at
-// the same on-screen position/size it currently has, converted into the
-// export canvas's native-resolution coordinate space.
+// its current size (minimized state honored) converted into the export
+// canvas's native-resolution coordinate space. Its on-map drag position is
+// ignored — the snapshot always places it in a dedicated right-hand margin
+// (see downloadSnapshot) rather than overlapping the plot.
+function legendSnapshotScale(){
+  const stage = document.getElementById('mapStage');
+  const stageRect = stage?.getBoundingClientRect();
+  return (stageRect && stageRect.width) ? S.imgW / stageRect.width : null;
+}
 async function captureLegendForSnapshot(){
   const panel = document.getElementById('mapLegendPanel');
-  const stage = document.getElementById('mapStage');
-  if (!panel || !stage || !panel.classList.contains('visible')) return null;
+  if (!panel || !panel.classList.contains('visible')) return null;
   if (typeof html2canvas === 'undefined') return { unavailable:true };
-  const stageRect = stage.getBoundingClientRect();
+  const scale = legendSnapshotScale();
   const panelRect = panel.getBoundingClientRect();
-  if (!stageRect.width || !panelRect.width) return null;
-  const scale = S.imgW / stageRect.width;
+  if (!scale || !panelRect.width) return null;
   const grip = panel.querySelector('.map-legend-grip');
   const toggleBtn = panel.querySelector('.map-legend-toggle');
   const hidden = [grip, toggleBtn].filter(Boolean);
   hidden.forEach(el=>el.style.visibility='hidden');
   try {
     const legendCanvas = await html2canvas(panel, { backgroundColor:null, scale });
-    return {
-      canvas: legendCanvas,
-      x: (panelRect.left - stageRect.left) * scale,
-      y: (panelRect.top - stageRect.top) * scale,
-      w: panelRect.width * scale,
-      h: panelRect.height * scale
-    };
+    return { canvas: legendCanvas, w: panelRect.width * scale, h: panelRect.height * scale };
   } catch(e){
     return { failed:true };
   } finally {
@@ -3913,8 +3912,19 @@ async function downloadSnapshot(){
   const marginTop = hasTitle ? Math.round(titleFont * 2.2) : 0;
   const marginBottom = hasX ? Math.round(baseFont * 2.4) : 0;
   const marginLeft = hasY ? Math.round(baseFont * 2.4) : 0;
+  // The legend gets its own buffer zone to the right of the plot — the one
+  // side with no axis label — so it never overlaps plotted data. Its size is
+  // known synchronously (from the live panel's layout box); only the
+  // rasterization via html2canvas below is async.
+  const legendPanel = document.getElementById('mapLegendPanel');
+  const legendVisible = includeLegend && !!legendPanel && legendPanel.classList.contains('visible');
+  const legendReady = legendVisible && typeof html2canvas !== 'undefined';
+  const legendScale = legendReady ? legendSnapshotScale() : null;
+  const legendRectW = (legendReady && legendScale) ? legendPanel.getBoundingClientRect().width : 0;
+  const legendGap = Math.round(baseFont * 1.2);
+  const marginRight = legendRectW ? Math.round(legendRectW * legendScale) + legendGap : 0;
   const cv = document.createElement('canvas');
-  cv.width = S.imgW + marginLeft;
+  cv.width = S.imgW + marginLeft + marginRight;
   cv.height = S.imgH + marginTop + marginBottom;
   const g = cv.getContext('2d');
   g.fillStyle = '#ffffff'; g.fillRect(0,0,cv.width,cv.height);
@@ -3928,7 +3938,7 @@ async function downloadSnapshot(){
   try {
     const [overlayImg, legend] = await Promise.all([
       loadImage('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml)),
-      includeLegend ? captureLegendForSnapshot() : Promise.resolve(null)
+      legendVisible ? captureLegendForSnapshot() : Promise.resolve(null)
     ]);
     legendResult = legend;
     g.drawImage(overlayImg, marginLeft, marginTop, S.imgW, S.imgH);
@@ -3956,7 +3966,9 @@ async function downloadSnapshot(){
     g.restore();
   }
   if (legendResult && legendResult.canvas){
-    g.drawImage(legendResult.canvas, marginLeft + legendResult.x, marginTop + legendResult.y, legendResult.w, legendResult.h);
+    const lx = marginLeft + S.imgW + legendGap;
+    const ly = marginTop + Math.max(0, Math.round((S.imgH - legendResult.h) / 2));
+    g.drawImage(legendResult.canvas, lx, ly, legendResult.w, legendResult.h);
   }
   try {
     triggerDownload(cv.toDataURL('image/png'), exportBaseName() + '-snapshot.png');
