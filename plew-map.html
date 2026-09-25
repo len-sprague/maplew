@@ -340,6 +340,8 @@ input[type=checkbox], input[type=radio] { accent-color:#4ecdc4; }
         <div class="inline"><input type="checkbox" id="snapIncludeTitleChk" checked onchange="onSnapshotOptsChange()"><label for="snapIncludeTitleChk">Title</label></div>
         <div class="inline"><input type="checkbox" id="snapIncludeXChk" checked onchange="onSnapshotOptsChange()"><label for="snapIncludeXChk">X-axis label</label></div>
         <div class="inline"><input type="checkbox" id="snapIncludeYChk" checked onchange="onSnapshotOptsChange()"><label for="snapIncludeYChk">Y-axis label</label></div>
+        <div class="inline"><input type="checkbox" id="snapIncludeLegendChk" checked onchange="onSnapshotOptsChange()"><label for="snapIncludeLegendChk">Legend</label></div>
+        <div class="hint" id="snapLegendHint" style="margin-top:4px;">Legend is captured as-shown on the map (position, minimized state). Needs the <b>Show legend on map</b> option (Display section) turned on.</div>
       </div>
       <div class="btn-row">
         <button class="btn" onclick="downloadVisualizationConfig()">📤 Export setup</button>
@@ -3855,13 +3857,54 @@ function downloadCSV(){
                   exportBaseName() + '-calibrated.csv');
 }
 function onSnapshotOptsChange(){ /* checkbox state is read live in downloadSnapshot() */ }
-function downloadSnapshot(){
+function loadImage(src){
+  return new Promise((resolve, reject)=>{
+    const img = new Image();
+    img.onload = ()=>resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+// Rasterizes the on-map legend panel (a plain HTML overlay, not part of the
+// SVG — so it isn't captured by the overlay clone below) via html2canvas, at
+// the same on-screen position/size it currently has, converted into the
+// export canvas's native-resolution coordinate space.
+async function captureLegendForSnapshot(){
+  const panel = document.getElementById('mapLegendPanel');
+  const stage = document.getElementById('mapStage');
+  if (!panel || !stage || !panel.classList.contains('visible')) return null;
+  if (typeof html2canvas === 'undefined') return { unavailable:true };
+  const stageRect = stage.getBoundingClientRect();
+  const panelRect = panel.getBoundingClientRect();
+  if (!stageRect.width || !panelRect.width) return null;
+  const scale = S.imgW / stageRect.width;
+  const grip = panel.querySelector('.map-legend-grip');
+  const toggleBtn = panel.querySelector('.map-legend-toggle');
+  const hidden = [grip, toggleBtn].filter(Boolean);
+  hidden.forEach(el=>el.style.visibility='hidden');
+  try {
+    const legendCanvas = await html2canvas(panel, { backgroundColor:null, scale });
+    return {
+      canvas: legendCanvas,
+      x: (panelRect.left - stageRect.left) * scale,
+      y: (panelRect.top - stageRect.top) * scale,
+      w: panelRect.width * scale,
+      h: panelRect.height * scale
+    };
+  } catch(e){
+    return { failed:true };
+  } finally {
+    hidden.forEach(el=>el.style.visibility='');
+  }
+}
+async function downloadSnapshot(){
   if (!S.imageSet) return;
   // Title/axis labels are drawn into extra canvas margins below, independent of
   // attached/fixed label mode — inclusion is controlled by the checkboxes in Export.
   const includeTitle = document.getElementById('snapIncludeTitleChk')?.checked ?? true;
   const includeX = document.getElementById('snapIncludeXChk')?.checked ?? true;
   const includeY = document.getElementById('snapIncludeYChk')?.checked ?? true;
+  const includeLegend = document.getElementById('snapIncludeLegendChk')?.checked ?? true;
   const hasTitle = includeTitle && !!S.labels.title;
   const hasX = includeX && !!S.labels.xAxis;
   const hasY = includeY && !!S.labels.yAxis;
@@ -3881,37 +3924,50 @@ function downloadSnapshot(){
   svg.setAttribute('height', S.imgH);
   svg.setAttribute('xmlns','http://www.w3.org/2000/svg');
   const xml = new XMLSerializer().serializeToString(svg);
-  const img = new Image();
-  img.onload = ()=>{
-    g.drawImage(img, marginLeft, marginTop, S.imgW, S.imgH);
-    g.fillStyle = '#1a1a1a';
-    g.textAlign = 'center';
-    g.textBaseline = 'alphabetic';
-    if (hasTitle){
-      g.font = `600 ${titleFont}px "Segoe UI", sans-serif`;
-      g.fillText(S.labels.title, marginLeft + S.imgW/2, Math.round(titleFont*1.4));
-    }
-    if (hasX){
-      g.font = `600 ${baseFont}px "Segoe UI", sans-serif`;
-      g.fillText(S.labels.xAxis, marginLeft + S.imgW/2, cv.height - Math.round(baseFont*0.8));
-    }
-    if (hasY){
-      g.save();
-      g.translate(Math.round(baseFont*1.6), marginTop + S.imgH/2);
-      g.rotate(-Math.PI/2);
-      g.font = `600 ${baseFont}px "Segoe UI", sans-serif`;
-      g.fillText(S.labels.yAxis, 0, 0);
-      g.restore();
-    }
-    try {
-      triggerDownload(cv.toDataURL('image/png'), exportBaseName() + '-snapshot.png');
+  let legendResult = null;
+  try {
+    const [overlayImg, legend] = await Promise.all([
+      loadImage('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml)),
+      includeLegend ? captureLegendForSnapshot() : Promise.resolve(null)
+    ]);
+    legendResult = legend;
+    g.drawImage(overlayImg, marginLeft, marginTop, S.imgW, S.imgH);
+  } catch(e){
+    setStatus('exportStatus','err','Snapshot failed while rendering the point overlay.');
+    return;
+  }
+  g.fillStyle = '#1a1a1a';
+  g.textAlign = 'center';
+  g.textBaseline = 'alphabetic';
+  if (hasTitle){
+    g.font = `600 ${titleFont}px "Segoe UI", sans-serif`;
+    g.fillText(S.labels.title, marginLeft + S.imgW/2, Math.round(titleFont*1.4));
+  }
+  if (hasX){
+    g.font = `600 ${baseFont}px "Segoe UI", sans-serif`;
+    g.fillText(S.labels.xAxis, marginLeft + S.imgW/2, cv.height - Math.round(baseFont*0.8));
+  }
+  if (hasY){
+    g.save();
+    g.translate(Math.round(baseFont*1.6), marginTop + S.imgH/2);
+    g.rotate(-Math.PI/2);
+    g.font = `600 ${baseFont}px "Segoe UI", sans-serif`;
+    g.fillText(S.labels.yAxis, 0, 0);
+    g.restore();
+  }
+  if (legendResult && legendResult.canvas){
+    g.drawImage(legendResult.canvas, marginLeft + legendResult.x, marginTop + legendResult.y, legendResult.w, legendResult.h);
+  }
+  try {
+    triggerDownload(cv.toDataURL('image/png'), exportBaseName() + '-snapshot.png');
+    if (legendResult && (legendResult.unavailable || legendResult.failed)){
+      setStatus('exportStatus','warn','Snapshot PNG saved, but the legend couldn\'t be captured (needs html2canvas — check your network) and was left out.');
+    } else {
       setStatus('exportStatus','ok','Snapshot PNG saved at the image\'s native resolution.');
-    } catch(e){
-      setStatus('exportStatus','err','Snapshot failed: the canvas was blocked ('+escHtml(e.message)+').');
     }
-  };
-  img.onerror = ()=>setStatus('exportStatus','err','Snapshot failed while rendering the point overlay.');
-  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
+  } catch(e){
+    setStatus('exportStatus','err','Snapshot failed: the canvas was blocked ('+escHtml(e.message)+').');
+  }
 }
 
 // ── utils ──
