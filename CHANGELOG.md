@@ -8,6 +8,12 @@ Work-in-progress on `plew-map.html`; not yet committed or merged to `main`.
 
 ### Added
 
+#### Sidebar & plot viewing usability
+- **Snapshot PNG** export now has independent **Title / X-axis label / Y-axis label** checkboxes (Export section), all on by default. Inclusion no longer depends on the attached/fixed label mode — labels are drawn into the exported canvas margins either way.
+- **Plot display size** presets (1x / 1.5x / 2x / Fit) in the map's zoom bar — resizes the plot box on screen independently of the background image's native resolution and of the existing pan/zoom, useful on large monitors where a low-resolution basemap used to render small. "Fit" tracks window resizes.
+- Sidebar sections are now collapsible (click a header to toggle, chevron indicates state); the open/closed state persists across reloads. Data input, Export, Edit positions, Edits, Column roles, and Calibration default open; Location columns, Background map, Encodings, Display, and Legend default collapsed.
+- Encodings' **Filter categories** and **Explore speaker** blocks are now boxed as distinct sub-panels instead of a plain divider.
+
 #### PLeW editor features on the map
 - Undo / redo and a change log for moves, edits, adds, and deletes.
 - Compare two records (Alt+click for slot B). Ctrl/Cmd+click marks points.
