@@ -341,7 +341,7 @@ input[type=checkbox], input[type=radio] { accent-color:#4ecdc4; }
         <div class="inline"><input type="checkbox" id="snapIncludeXChk" checked onchange="onSnapshotOptsChange()"><label for="snapIncludeXChk">X-axis label</label></div>
         <div class="inline"><input type="checkbox" id="snapIncludeYChk" checked onchange="onSnapshotOptsChange()"><label for="snapIncludeYChk">Y-axis label</label></div>
         <div class="inline"><input type="checkbox" id="snapIncludeLegendChk" checked onchange="onSnapshotOptsChange()"><label for="snapIncludeLegendChk">Legend</label></div>
-        <div class="hint" id="snapLegendHint" style="margin-top:4px;">Legend is printed in its own margin to the right of the plot (so it never overlaps data), using its current minimized state. Needs the <b>Show legend on map</b> option (Display section) turned on.</div>
+        <div class="hint" id="snapLegendHint" style="margin-top:4px;">Legend is printed in its own margin to the right of the plot (so it never overlaps data), always shown expanded even if minimized on the map. Needs the <b>Show legend on map</b> option (Display section) turned on.</div>
       </div>
       <div class="btn-row">
         <button class="btn" onclick="downloadVisualizationConfig()">📤 Export setup</button>
@@ -3866,11 +3866,13 @@ function loadImage(src){
   });
 }
 // Rasterizes the on-map legend panel (a plain HTML overlay, not part of the
-// SVG — so it isn't captured by the overlay clone below) via html2canvas, at
-// its current size (minimized state honored) converted into the export
-// canvas's native-resolution coordinate space. Its on-map drag position is
-// ignored — the snapshot always places it in a dedicated right-hand margin
-// (see downloadSnapshot) rather than overlapping the plot.
+// SVG — so it isn't captured by the overlay clone below) via html2canvas,
+// converted into the export canvas's native-resolution coordinate space.
+// Its on-map drag position and minimized state are both ignored — the
+// snapshot's Legend checkbox is the only thing that decides inclusion, and
+// inclusion always means the full expanded content, placed in a dedicated
+// right-hand margin (see downloadSnapshot) rather than overlapping the plot.
+// Callers are responsible for un-minimizing the panel first (below).
 function legendSnapshotScale(){
   const stage = document.getElementById('mapStage');
   const stageRect = stage?.getBoundingClientRect();
@@ -3881,19 +3883,28 @@ async function captureLegendForSnapshot(){
   if (!panel || !panel.classList.contains('visible')) return null;
   if (typeof html2canvas === 'undefined') return { unavailable:true };
   const scale = legendSnapshotScale();
-  const panelRect = panel.getBoundingClientRect();
-  if (!scale || !panelRect.width) return null;
+  if (!scale) return null;
   const grip = panel.querySelector('.map-legend-grip');
   const toggleBtn = panel.querySelector('.map-legend-toggle');
-  const hidden = [grip, toggleBtn].filter(Boolean);
-  hidden.forEach(el=>el.style.visibility='hidden');
+  const hiddenVis = [grip, toggleBtn].filter(Boolean);
+  // The per-category <input type=color> swatch is native OS/browser chrome,
+  // not plain DOM+CSS content, so html2canvas can't rasterize it (it paints
+  // a blank/mismatched box instead of the actual value). Drop it from the
+  // capture rather than ship a broken swatch — the adjacent .legend-swatch
+  // span already shows the same color as plain, capturable markup.
+  const colorInputs = Array.from(panel.querySelectorAll('input[type=color]'));
+  hiddenVis.forEach(el=>el.style.visibility='hidden');
+  colorInputs.forEach(el=>el.style.display='none');
   try {
+    const panelRect = panel.getBoundingClientRect();
+    if (!panelRect.width) return null;
     const legendCanvas = await html2canvas(panel, { backgroundColor:null, scale });
     return { canvas: legendCanvas, w: panelRect.width * scale, h: panelRect.height * scale };
   } catch(e){
     return { failed:true };
   } finally {
-    hidden.forEach(el=>el.style.visibility='');
+    hiddenVis.forEach(el=>el.style.visibility='');
+    colorInputs.forEach(el=>el.style.display='');
   }
 }
 async function downloadSnapshot(){
@@ -3913,39 +3924,39 @@ async function downloadSnapshot(){
   const marginBottom = hasX ? Math.round(baseFont * 2.4) : 0;
   const marginLeft = hasY ? Math.round(baseFont * 2.4) : 0;
   // The legend gets its own buffer zone to the right of the plot — the one
-  // side with no axis label — so it never overlaps plotted data. Its size is
-  // known synchronously (from the live panel's layout box); only the
-  // rasterization via html2canvas below is async.
+  // side with no axis label — so it never overlaps plotted data. The Legend
+  // checkbox is the only thing that decides whether it's included; a
+  // minimized on-map panel is temporarily expanded for the capture so the
+  // snapshot always shows the full legend, then restored either way.
   const legendPanel = document.getElementById('mapLegendPanel');
-  const legendVisible = includeLegend && !!legendPanel && legendPanel.classList.contains('visible');
-  const legendReady = legendVisible && typeof html2canvas !== 'undefined';
-  const legendScale = legendReady ? legendSnapshotScale() : null;
-  const legendRectW = (legendReady && legendScale) ? legendPanel.getBoundingClientRect().width : 0;
+  const wasMinimized = includeLegend && !!legendPanel && legendPanel.classList.contains('minimized');
+  if (wasMinimized) legendPanel.classList.remove('minimized');
+  const svg = document.getElementById('overlay').cloneNode(true);
+  svg.setAttribute('width', S.imgW);
+  svg.setAttribute('height', S.imgH);
+  svg.setAttribute('xmlns','http://www.w3.org/2000/svg');
+  const xml = new XMLSerializer().serializeToString(svg);
+  let overlayImg, legendResult;
+  try {
+    [overlayImg, legendResult] = await Promise.all([
+      loadImage('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml)),
+      includeLegend ? captureLegendForSnapshot() : Promise.resolve(null)
+    ]);
+  } catch(e){
+    if (wasMinimized) legendPanel.classList.add('minimized');
+    setStatus('exportStatus','err','Snapshot failed while rendering the point overlay.');
+    return;
+  }
+  if (wasMinimized) legendPanel.classList.add('minimized');
   const legendGap = Math.round(baseFont * 1.2);
-  const marginRight = legendRectW ? Math.round(legendRectW * legendScale) + legendGap : 0;
+  const marginRight = (legendResult && legendResult.canvas) ? Math.round(legendResult.w) + legendGap : 0;
   const cv = document.createElement('canvas');
   cv.width = S.imgW + marginLeft + marginRight;
   cv.height = S.imgH + marginTop + marginBottom;
   const g = cv.getContext('2d');
   g.fillStyle = '#ffffff'; g.fillRect(0,0,cv.width,cv.height);
   g.drawImage(document.getElementById('bgImage'), marginLeft, marginTop, S.imgW, S.imgH);
-  const svg = document.getElementById('overlay').cloneNode(true);
-  svg.setAttribute('width', S.imgW);
-  svg.setAttribute('height', S.imgH);
-  svg.setAttribute('xmlns','http://www.w3.org/2000/svg');
-  const xml = new XMLSerializer().serializeToString(svg);
-  let legendResult = null;
-  try {
-    const [overlayImg, legend] = await Promise.all([
-      loadImage('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml)),
-      legendVisible ? captureLegendForSnapshot() : Promise.resolve(null)
-    ]);
-    legendResult = legend;
-    g.drawImage(overlayImg, marginLeft, marginTop, S.imgW, S.imgH);
-  } catch(e){
-    setStatus('exportStatus','err','Snapshot failed while rendering the point overlay.');
-    return;
-  }
+  g.drawImage(overlayImg, marginLeft, marginTop, S.imgW, S.imgH);
   g.fillStyle = '#1a1a1a';
   g.textAlign = 'center';
   g.textBaseline = 'alphabetic';
