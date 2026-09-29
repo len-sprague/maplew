@@ -81,6 +81,19 @@ input[type=checkbox], input[type=radio] { accent-color:#4ecdc4; }
 .inline { display:flex; align-items:center; gap:7px; font-size:0.74rem; margin-top:8px; }
 .snapshot-label-opts { margin-top:10px; padding-top:8px; border-top:1px solid #2d3640; }
 .snapshot-label-opts .inline { margin-top:4px; }
+.snap-legend-staging { position:fixed; left:-10000px; top:0; z-index:-1; pointer-events:none; box-sizing:border-box; font-size:13px; line-height:1.35; }
+.snap-legend-staging.snap-legend-stack { max-width:280px; padding:8px 10px; border-radius:8px; }
+.snap-legend-staging.snap-legend-bar { display:flex; flex-wrap:wrap; align-items:flex-start; gap:16px 28px; padding:14px 18px; border-radius:8px; max-width:min(1200px, 95vw); }
+.snap-legend-staging.snap-legend-bar .legend-bar-section { display:flex; flex-direction:column; gap:6px; min-width:0; }
+.snap-legend-staging.snap-legend-bar .legend-bar-items { display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px; }
+.snap-legend-staging.snap-theme-dark { background:#1a1f26; color:#e6e9ec; border:1px solid #2d3640; }
+.snap-legend-staging.snap-theme-dark .legend-sub { color:#8a949e; }
+.snap-legend-staging.snap-theme-light { background:#ffffff; color:#222222; border:1px solid #cccccc; }
+.snap-legend-staging.snap-theme-light .legend-sub { color:#555555; }
+.snap-legend-staging.snap-theme-light .legend-item.filtered-off { opacity:1; }
+.snap-legend-staging .legend-item { margin-top:0; }
+.snap-legend-staging.snap-legend-stack .legend-item { margin-top:6px; }
+.snap-legend-staging.snap-legend-stack .legend-item:first-of-type { margin-top:0; }
 .radio-row { display:flex; gap:12px; font-size:0.74rem; margin-bottom:8px; flex-wrap:wrap; }
 .radio-row label { display:flex; align-items:center; gap:5px; cursor:pointer; }
 
@@ -102,6 +115,9 @@ input[type=checkbox], input[type=radio] { accent-color:#4ecdc4; }
 .legend-sub { font-size:0.68rem; color:#4ecdc4; margin-top:10px; text-transform:uppercase; letter-spacing:0.05em; }
 .legend-sub:first-child { margin-top:0; }
 .legend-item input[type=color] { margin-left:auto; }
+.legend-item input.legend-size-input { width:52px; margin-left:auto; font-size:0.72rem; padding:2px 4px; flex-shrink:0; }
+.legend-item select.legend-shape-select { margin-left:auto; font-size:0.68rem; padding:2px 4px; max-width:96px; flex-shrink:0; }
+.legend-item .legend-size-preview { flex-shrink:0; display:flex; align-items:center; justify-content:center; }
 .legend-item.filterable { cursor:pointer; }
 .legend-item.filtered-off { opacity:0.35; }
 .legend-item.filtered-off .legend-swatch { border-style:dashed; }
@@ -144,10 +160,26 @@ input[type=checkbox], input[type=radio] { accent-color:#4ecdc4; }
 .map-zoom-grip:hover { color:#9aa5b0; }
 .map-zoom-bar.dragging-grip .map-zoom-grip { cursor:grabbing; }
 .map-legend-panel { position:absolute; left:8px; bottom:8px; z-index:5; max-width:min(260px, calc(100% - 16px)); background:rgba(26,31,38,0.92); border:1px solid #2d3640; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,0.35); touch-action:none; display:none; }
+.map-legend-panel.preview-wide { max-width:min(560px, calc(100% - 16px)); }
 .map-legend-panel.visible { display:block; }
 .map-legend-panel.moved { left:auto; bottom:auto; }
 .map-legend-panel-head { display:flex; align-items:center; gap:6px; padding:4px 8px; border-bottom:1px solid #2d3640; }
 .map-legend-panel.minimized .map-legend-panel-head { border-bottom:none; }
+.map-legend-foot { border-top:1px solid #2d3640; padding:4px 6px 6px; font-size:0.62rem; }
+.map-legend-panel.minimized .map-legend-foot { display:none; }
+.map-legend-foot-toggle { background:none; border:none; color:#8a949e; cursor:pointer; padding:2px 0; font-size:0.62rem; width:100%; text-align:left; }
+.map-legend-foot-toggle:hover { color:#cfd6dd; }
+.map-legend-foot-opts { display:flex; flex-wrap:wrap; align-items:center; gap:4px; margin-top:4px; }
+.map-legend-foot-opts[hidden] { display:none !important; }
+.map-legend-chip { padding:2px 6px !important; font-size:0.58rem !important; min-width:0; line-height:1.2; }
+.map-legend-chip.on { border-color:#4ecdc4 !important; color:#4ecdc4 !important; }
+.map-legend-frame-color { width:22px; height:18px; padding:0; border:1px solid #2d3640; border-radius:4px; cursor:pointer; background:none; }
+.map-legend-body.snap-preview { border-radius:0 0 7px 7px; }
+.map-legend-body.snap-preview.snap-legend-bar-layout { display:flex; flex-wrap:wrap; align-items:flex-start; gap:14px 22px; }
+.map-legend-body.snap-preview.snap-legend-bar-layout .legend-bar-section { display:flex; flex-direction:column; gap:6px; }
+.map-legend-body.snap-preview.snap-legend-bar-layout .legend-bar-items { display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; }
+.map-legend-body.snap-preview.snap-theme-light .legend-sub { color:#555; }
+.map-legend-body.snap-preview.snap-theme-dark .legend-sub { color:#8a949e; }
 .map-legend-grip { cursor:grab; color:#6b7680; font-size:0.62rem; letter-spacing:-0.12em; user-select:none; line-height:1; flex-shrink:0; }
 .map-legend-grip:hover { color:#9aa5b0; }
 .map-legend-panel.dragging-grip .map-legend-grip { cursor:grabbing; }
@@ -341,7 +373,7 @@ input[type=checkbox], input[type=radio] { accent-color:#4ecdc4; }
         <div class="inline"><input type="checkbox" id="snapIncludeXChk" checked onchange="onSnapshotOptsChange()"><label for="snapIncludeXChk">X-axis label</label></div>
         <div class="inline"><input type="checkbox" id="snapIncludeYChk" checked onchange="onSnapshotOptsChange()"><label for="snapIncludeYChk">Y-axis label</label></div>
         <div class="inline"><input type="checkbox" id="snapIncludeLegendChk" checked onchange="onSnapshotOptsChange()"><label for="snapIncludeLegendChk">Legend</label></div>
-        <div class="hint" id="snapLegendHint" style="margin-top:4px;">Legend is printed in its own margin to the right of the plot (so it never overlaps data), always shown expanded even if minimized on the map. Needs the <b>Show legend on map</b> option (Display section) turned on.</div>
+        <div class="hint" id="snapLegendHint" style="margin-top:4px;">Open <b>▸ Snapshot export setting</b> on the on-map legend for layout and frame (used by Snapshot PNG).</div>
       </div>
       <div class="btn-row">
         <button class="btn" onclick="downloadVisualizationConfig()">📤 Export setup</button>
@@ -467,9 +499,11 @@ input[type=checkbox], input[type=radio] { accent-color:#4ecdc4; }
         <div><label class="field">Min px</label><input type="number" id="sizeMin" value="4" min="1" onchange="onEncChange()"></div>
         <div><label class="field">Max px</label><input type="number" id="sizeMax" value="16" min="1" onchange="onEncChange()"></div>
       </div>
+      <div class="hint" id="sizeCatHint" style="display:none; margin-top:4px;">Categorical size uses A–Z order by default (Min → Max px). Override any category in the <b>Legend</b> (px field per row), or click <b>Reset scale</b> there to clear overrides.</div>
 
       <label class="field" style="margin-top:12px;">Shape by <span style="color:#6b7680;">(categorical only)</span></label>
       <select id="shapeSel" onchange="onEncChange()"></select>
+      <div class="hint" id="shapeCatHint" style="display:none; margin-top:4px;">Default shapes follow A–Z category order. Override any category in the <b>Legend</b> (shape menu per row), or click <b>Reset shapes</b> there.</div>
       <div id="filterSection" class="subsection" style="display:none;">
         <div class="subsection-title">Filter categories</div>
         <div class="hint" style="margin-top:0; margin-bottom:8px;">Uncheck values to hide them from the map. Click legend items too.</div>
@@ -566,6 +600,17 @@ input[type=checkbox], input[type=radio] { accent-color:#4ecdc4; }
               <button type="button" class="map-legend-toggle" id="mapLegendToggleBtn" onclick="toggleMapLegend()" title="Minimize legend">−</button>
             </div>
             <div class="map-legend-body" id="mapLegendBody"></div>
+            <div class="map-legend-foot">
+              <button type="button" class="map-legend-foot-toggle" onclick="toggleLegendSnapOpts()" title="Snapshot PNG export layout and frame">
+                <span id="mapLegendFootChevron">▸</span> Snapshot export setting
+              </button>
+              <div class="map-legend-foot-opts" id="mapLegendFootOpts" hidden>
+                <button type="button" class="btn filter-mini map-legend-chip" id="snapBelowBtn" onclick="toggleSnapBelow()" title="Legend bar below map in export">Below</button>
+                <button type="button" class="btn filter-mini map-legend-chip" id="snapFrameBtn" onclick="cycleSnapFrame()" title="Click: dark → light → custom frame">Dark</button>
+                <input type="color" id="snapLegendBgColor" value="#f0f0f0" class="map-legend-frame-color" title="Custom frame" hidden onchange="onSnapLegendOptsChange()">
+                <button type="button" class="btn filter-mini map-legend-chip" id="snapPreviewBtn" onclick="toggleLegendPreview()" title="Show export styling in this panel">Preview</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -575,6 +620,7 @@ input[type=checkbox], input[type=radio] { accent-color:#4ecdc4; }
 </div>
 
 <div class="tooltip" id="tooltip"></div>
+<div id="snapLegendStaging" class="snap-legend-staging" aria-hidden="true"></div>
 
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
   <div class="modal" onclick="event.stopPropagation()">
@@ -661,7 +707,7 @@ const S = {
   imageUrl:null, imgW:0, imgH:0, isFrame:false, imageSet:false,
   locX:null, locY:null, mercator:false,
   calib:{ mode:'edges', edges:{L:null,R:null,T:null,B:null}, pts:[mkPt(),mkPt(),mkPt()], affine:null, placing:-1, valid:false, prefilled:false },
-  enc:{ color:{col:'',type:'categorical',ramp:'viridis',catColors:{}}, size:{col:'',type:'continuous',minPx:4,maxPx:16}, shape:{col:''} },
+  enc:{ color:{col:'',type:'categorical',ramp:'viridis',catColors:{}}, size:{col:'',type:'continuous',minPx:4,maxPx:16,catSizes:{}}, shape:{col:'',catShapes:{}} },
   filters:{},
   speakerFilter:{ multiOnly:false, selected:new Set() },
   media:{}, alignFiles:{}, alignCache:{}, datasetName:'', skipped:0, pendingCalib:null,
@@ -671,6 +717,11 @@ const S = {
   zoomBarPos:null,
   legendPanelPos:null,
   legendPanelMinimized:false,
+  legendPanelMode:'edit',
+  legendSnapOptsOpen:false,
+  snapLegendLayout:'side',
+  snapLegendTheme:'dark',
+  _legendInteractiveHtml:'',
   editingRow:null, editingIsNew:false,
   originalData:[],
   undoStack:[], redoStack:[],
@@ -1386,6 +1437,8 @@ function applyVisualizationConfig(cfg){
   }
   if (cfg.enc){
     S.enc = Object.assign(S.enc, cfg.enc);
+    if (!S.enc.size.catSizes) S.enc.size.catSizes = {};
+    if (!S.enc.shape.catShapes) S.enc.shape.catShapes = {};
     populateEncSelectors();
     if (S.enc.color.col) document.getElementById('colorSel').value = S.enc.color.col;
     if (S.enc.size.col) document.getElementById('sizeSel').value = S.enc.size.col;
@@ -2466,6 +2519,8 @@ function ingestCSV(text, filename){
   guessLocColumns();
   S.calib.valid=false; S.calib.affine=null; S.calib.pts=[mkPt(),mkPt(),mkPt()]; S.calib.placing=-1;
   S.enc.color.catColors = {};
+  S.enc.size.catSizes = {};
+  S.enc.shape.catShapes = {};
   S.filters = {};
   S.speakerFilter = { multiOnly:false, selected:new Set() };
   autoAssignEncodings();
@@ -2749,7 +2804,10 @@ function syncEncControls(){
   if (sc && !sizeNumeric) S.enc.size.type='categorical';
   document.querySelectorAll('input[name=sizeType]').forEach(r=>r.checked = r.value===S.enc.size.type);
   document.getElementById('sizeRange').style.display = sc ? 'grid' : 'none';
+  const sizeCat = sc && S.enc.size.type === 'categorical';
+  document.getElementById('sizeCatHint').style.display = sizeCat ? '' : 'none';
   const shc = S.enc.shape.col;
+  document.getElementById('shapeCatHint').style.display = shc ? '' : 'none';
   if (shc && S.cols[shc].uniq.length > SHAPES.length)
     setStatus('encStatus','warn',`Shape column has ${S.cols[shc].uniq.length} values; only ${SHAPES.length} distinct shapes — they will repeat.`);
   else document.getElementById('encStatus').className='status';
@@ -2776,6 +2834,35 @@ function syncFilters(){
   });
   Object.keys(S.filters).forEach(col=>{
     if (!cols.includes(col)) delete S.filters[col];
+  });
+  syncCatSizes();
+  syncCatShapes();
+}
+function syncCatSizes(){
+  if (!S.enc.size.catSizes) S.enc.size.catSizes = {};
+  const col = S.enc.size.col;
+  if (!col || S.enc.size.type !== 'categorical'){
+    S.enc.size.catSizes = {};
+    return;
+  }
+  const cats = legendCategories(col);
+  Object.keys(S.enc.size.catSizes).forEach(v=>{
+    if (!cats.includes(v)) delete S.enc.size.catSizes[v];
+  });
+}
+function syncCatShapes(){
+  if (!S.enc.shape.catShapes) S.enc.shape.catShapes = {};
+  const col = S.enc.shape.col;
+  if (!col){
+    S.enc.shape.catShapes = {};
+    return;
+  }
+  const cats = legendCategories(col);
+  Object.keys(S.enc.shape.catShapes).forEach(v=>{
+    if (!cats.includes(v)) delete S.enc.shape.catShapes[v];
+  });
+  Object.keys(S.enc.shape.catShapes).forEach(v=>{
+    if (!SHAPES.includes(S.enc.shape.catShapes[v])) delete S.enc.shape.catShapes[v];
   });
 }
 function isFilterOn(col, val){
@@ -2991,6 +3078,14 @@ function colorFor(row){
   const idx = cats.indexOf(v);
   return COLORS[(idx >= 0 ? idx : cats.length) % COLORS.length];
 }
+function defaultSizeForCategory(col, catVal){
+  const mnP = Number(document.getElementById('sizeMin').value)||4;
+  const mxP = Number(document.getElementById('sizeMax').value)||16;
+  const cats = legendCategories(col);
+  const n = Math.max(cats.length - 1, 1);
+  const idx = cats.indexOf(catVal);
+  return mnP + ((idx >= 0 ? idx : cats.length) / n) * (mxP - mnP);
+}
 function sizeFor(row){
   const base = Number(document.getElementById('baseSize').value);
   const col = S.enc.size.col;
@@ -3002,17 +3097,56 @@ function sizeFor(row){
     const t = mx===mn ? 0.5 : (Number(row[col])-mn)/(mx-mn);
     return mnP + t*(mxP-mnP);
   }
+  const v = row[col];
+  const custom = S.enc.size.catSizes?.[v];
+  if (custom != null && Number.isFinite(Number(custom))) return Number(custom);
+  return defaultSizeForCategory(col, v);
+}
+function setCatSize(value, pxStr){
+  if (!S.enc.size.catSizes) S.enc.size.catSizes = {};
+  const col = S.enc.size.col;
+  const px = Number(pxStr);
+  if (!Number.isFinite(px) || px < 1) return;
+  const def = defaultSizeForCategory(col, value);
+  if (Math.abs(px - def) < 0.05) delete S.enc.size.catSizes[value];
+  else S.enc.size.catSizes[value] = Math.round(px * 10) / 10;
+  renderAll();
+}
+function resetCatSizes(){
+  S.enc.size.catSizes = {};
+  renderAll();
+}
+function defaultShapeForCategory(col, catVal){
   const cats = legendCategories(col);
-  const n = Math.max(cats.length - 1, 1);
-  const idx = cats.indexOf(row[col]);
-  return mnP + ((idx >= 0 ? idx : cats.length) / n) * (mxP - mnP);
+  const idx = cats.indexOf(catVal);
+  return SHAPES[(idx >= 0 ? idx : cats.length) % SHAPES.length];
+}
+function shapeForValue(col, catVal){
+  if (!col) return 'circle';
+  const custom = S.enc.shape.catShapes?.[catVal];
+  if (custom && SHAPES.includes(custom)) return custom;
+  return defaultShapeForCategory(col, catVal);
 }
 function shapeFor(row){
   const col = S.enc.shape.col;
   if (!col) return 'circle';
-  const cats = legendCategories(col);
-  const idx = cats.indexOf(row[col]);
-  return SHAPES[(idx >= 0 ? idx : cats.length) % SHAPES.length];
+  return shapeForValue(col, row[col]);
+}
+function shapeSelectOptions(current){
+  return SHAPES.map(s=>`<option value="${escAttr(s)}"${s===current?' selected':''}>${escHtml(s)}</option>`).join('');
+}
+function setCatShape(value, shape){
+  if (!S.enc.shape.catShapes) S.enc.shape.catShapes = {};
+  const col = S.enc.shape.col;
+  if (!SHAPES.includes(shape)) return;
+  const def = defaultShapeForCategory(col, value);
+  if (shape === def) delete S.enc.shape.catShapes[value];
+  else S.enc.shape.catShapes[value] = shape;
+  renderAll();
+}
+function resetCatShapes(){
+  S.enc.shape.catShapes = {};
+  renderAll();
 }
 function setCatColor(value, hex){
   S.enc.color.catColors[value] = hex;
@@ -3086,6 +3220,12 @@ function legendCategories(h){
   const set = new Set(S.cols[h]?.uniq || []);
   if (h === S.enc.color.col && S.enc.color.type === 'categorical'){
     Object.keys(S.enc.color.catColors).forEach(v => set.add(v));
+  }
+  if (h === S.enc.size.col && S.enc.size.type === 'categorical'){
+    Object.keys(S.enc.size.catSizes || {}).forEach(v => set.add(v));
+  }
+  if (h === S.enc.shape.col){
+    Object.keys(S.enc.shape.catShapes || {}).forEach(v => set.add(v));
   }
   return [...set].filter(v => v !== '').sort();
 }
@@ -3476,73 +3616,194 @@ window.addEventListener('beforeunload', e=>{
 });
 
 // ── Legend ──
-function renderLegend(){
+function legendStroke(theme){ return theme === 'light' ? '#555555' : '#8a949e'; }
+function legendShapeStroke(theme){ return theme === 'light' ? '#444444' : '#cfd6dd'; }
+function snapLegendThemeBg(theme, customHex){
+  if (theme === 'custom') return customHex || '#f0f0f0';
+  if (theme === 'light') return '#ffffff';
+  return '#1a1f26';
+}
+function snapLegendOpts(){
+  return {
+    layout: S.snapLegendLayout || 'side',
+    theme: S.snapLegendTheme || 'dark',
+    customBg: document.getElementById('snapLegendBgColor')?.value || '#f0f0f0'
+  };
+}
+function onSnapLegendOptsChange(){
+  syncLegendSnapFootUi();
+  renderMapLegendContent();
+}
+function legendPanelMode(){
+  return S.legendPanelMode === 'snapshot' ? 'snapshot' : 'edit';
+}
+function toggleLegendSnapOpts(){
+  S.legendSnapOptsOpen = !S.legendSnapOptsOpen;
+  const opts = document.getElementById('mapLegendFootOpts');
+  const chev = document.getElementById('mapLegendFootChevron');
+  if (opts) opts.hidden = !S.legendSnapOptsOpen;
+  if (chev) chev.textContent = S.legendSnapOptsOpen ? '▾' : '▸';
+}
+function toggleSnapBelow(){
+  S.snapLegendLayout = S.snapLegendLayout === 'bar' ? 'side' : 'bar';
+  onSnapLegendOptsChange();
+}
+function cycleSnapFrame(){
+  const order = ['dark', 'light', 'custom'];
+  const i = order.indexOf(S.snapLegendTheme || 'dark');
+  S.snapLegendTheme = order[(i + 1) % order.length];
+  onSnapLegendOptsChange();
+}
+function toggleLegendPreview(){
+  S.legendPanelMode = legendPanelMode() === 'snapshot' ? 'edit' : 'snapshot';
+  onSnapLegendOptsChange();
+}
+function syncLegendSnapFootUi(){
+  const below = document.getElementById('snapBelowBtn');
+  const frame = document.getElementById('snapFrameBtn');
+  const preview = document.getElementById('snapPreviewBtn');
+  const colorEl = document.getElementById('snapLegendBgColor');
+  const theme = S.snapLegendTheme || 'dark';
+  if (below) below.classList.toggle('on', S.snapLegendLayout === 'bar');
+  if (frame){
+    frame.classList.toggle('on', theme !== 'dark');
+    frame.textContent = theme === 'light' ? 'Light' : theme === 'custom' ? 'Custom' : 'Dark';
+  }
+  if (colorEl){
+    colorEl.hidden = theme !== 'custom';
+  }
+  if (preview) preview.classList.toggle('on', legendPanelMode() === 'snapshot');
+}
+function applyMapLegendPreviewChrome(panel, mapBody, layout, theme, customBg){
+  if (!panel || !mapBody) return;
+  panel.classList.toggle('preview-wide', layout === 'bar' && legendPanelMode() === 'snapshot');
+  if (legendPanelMode() !== 'snapshot'){
+    mapBody.className = 'map-legend-body';
+    mapBody.style.background = '';
+    mapBody.style.color = '';
+    mapBody.style.border = '';
+    return;
+  }
+  const themeKey = theme === 'custom' ? 'custom' : theme;
+  mapBody.className = 'map-legend-body snap-preview snap-theme-' + themeKey + (layout === 'bar' ? ' snap-legend-bar-layout' : '');
+  const bg = snapLegendThemeBg(theme, customBg);
+  mapBody.style.background = bg;
+  mapBody.style.color = (theme === 'light' || theme === 'custom') ? '#222222' : '#e6e9ec';
+}
+function renderMapLegendContent(){
+  const mapBody = document.getElementById('mapLegendBody');
+  const panel = document.getElementById('mapLegendPanel');
+  if (!mapBody) return;
+  const mode = legendPanelMode();
+  const snap = snapLegendOpts();
+  if (mode === 'snapshot'){
+    const snapLayout = snap.layout === 'bar' ? 'bar' : 'stack';
+    const htmlTheme = snap.theme === 'custom' ? 'light' : snap.theme;
+    applyMapLegendPreviewChrome(panel, mapBody, snap.layout, snap.theme, snap.customBg);
+    mapBody.innerHTML = buildLegendHtml({ interactive:false, layout:snapLayout, theme:htmlTheme })
+      || '<div class="hint">No encodings yet.</div>';
+  } else {
+    applyMapLegendPreviewChrome(panel, mapBody, snap.layout, snap.theme, snap.customBg);
+    mapBody.innerHTML = S._legendInteractiveHtml || '<div class="hint">Choose columns above to build the legend.</div>';
+  }
+}
+function wrapLegendSection(titleHtml, bodyHtml, layout){
+  if (layout !== 'bar') return titleHtml + bodyHtml;
+  return `<div class="legend-bar-section">${titleHtml}<div class="legend-bar-items">${bodyHtml}</div></div>`;
+}
+function buildLegendHtml(options = {}){
+  const interactive = options.interactive !== false;
+  const layout = options.layout || 'stack';
+  const theme = options.theme || 'dark';
+  const stroke = legendStroke(theme);
   let html = '';
   const cc = S.enc.color.col;
   if (cc){
-    html += `<div class="legend-sub">Color · ${escHtml(displayName(cc))}</div>`;
+    const colorTitle = `<div class="legend-sub">Color · ${escHtml(displayName(cc))}</div>`;
     if (S.enc.color.type==='continuous'){
       const stops = activeRamp();
       const grad = stops.map((s,i)=>`${s} ${Math.round(i/(stops.length-1)*100)}%`).join(', ');
       const [mn,mx] = colRange(cc);
-      html += `<div class="grad-bar" style="background:linear-gradient(90deg, ${grad});"></div>
+      const body = `<div class="grad-bar" style="background:linear-gradient(90deg, ${grad});"></div>
                <div class="grad-labels"><span>${round4(mn)}</span><span>${round4(mx)}</span></div>`;
+      html += wrapLegendSection(colorTitle, body, layout);
     } else {
+      let body = '';
       legendCategories(cc).forEach(v=>{
         const uniq = legendCategories(cc);
         const c = S.enc.color.catColors[v] || COLORS[uniq.indexOf(v)%COLORS.length];
         const hex = c.startsWith('#') ? c : '#4ecdc4';
-        const on = isFilterOn(cc, v);
-        html += `<div class="legend-item filterable${on?'':' filtered-off'}" onclick="toggleFilter('${escAttr(cc)}','${escAttr(v)}')" title="Click to show/hide">
-                 <span class="legend-swatch" style="background:${c}"></span>${escHtml(v)||'<i>(empty)</i>'}
-                 <input type="color" value="${hex}" title="Customize color" data-v="${escAttr(v)}" onclick="event.stopPropagation()" onchange="setCatColor(this.dataset.v, this.value)"></div>`;
+        const on = interactive ? isFilterOn(cc, v) : true;
+        const click = interactive ? ` onclick="toggleFilter('${escAttr(cc)}','${escAttr(v)}')" title="Click to show/hide"` : '';
+        const colorIn = interactive ? `<input type="color" value="${hex}" title="Customize color" data-v="${escAttr(v)}" onclick="event.stopPropagation()" onchange="setCatColor(this.dataset.v, this.value)">` : '';
+        body += `<div class="legend-item${interactive?' filterable':''}${on?'':' filtered-off'}"${click}>
+                 <span class="legend-swatch" style="background:${c}"></span>${escHtml(v)||'<i>(empty)</i>'}${colorIn}</div>`;
       });
+      html += wrapLegendSection(colorTitle, body, layout);
     }
   }
   const sc = S.enc.size.col;
   if (sc){
     if (S.enc.size.type === 'categorical'){
-      html += `<div class="legend-sub">Size · ${escHtml(displayName(sc))}</div>`;
+      let body = '';
       legendCategories(sc).forEach(v=>{
-        const on = isFilterOn(sc, v);
-        html += `<div class="legend-item filterable${on?'':' filtered-off'}" onclick="toggleFilter('${escAttr(sc)}','${escAttr(v)}')" title="Click to show/hide">${escHtml(v)||'<i>(empty)</i>'}</div>`;
+        const on = interactive ? isFilterOn(sc, v) : true;
+        const px = sizeFor({ [sc]: v });
+        const box = Math.ceil(px * 2 + 2);
+        const cx = box / 2;
+        const click = interactive ? ` onclick="toggleFilter('${escAttr(sc)}','${escAttr(v)}')" title="Click to show/hide"` : '';
+        const sizeIn = interactive ? `<input type="number" class="legend-size-input" min="1" max="80" step="0.5" value="${px}" title="Point radius (px)" data-v="${escAttr(v)}" onclick="event.stopPropagation()" onchange="setCatSize(this.dataset.v, this.value)">` : `<span style="font-size:0.65rem;color:${stroke};margin-left:2px;">${px}px</span>`;
+        body += `<div class="legend-item${interactive?' filterable':''}${on?'':' filtered-off'}"${click}>
+                 <span class="legend-size-preview"><svg width="${box}" height="${box}" viewBox="0 0 ${box} ${box}"><circle cx="${cx}" cy="${cx}" r="${px}" fill="none" stroke="${stroke}" stroke-width="1.2"/></svg></span>
+                 ${escHtml(v)||'<i>(empty)</i>'}${sizeIn}</div>`;
       });
+      const reset = interactive ? ` <button type="button" class="btn filter-mini" onclick="event.stopPropagation(); resetCatSizes()" title="Clear custom sizes; use Min/Max scale (A–Z)">Reset scale</button>` : '';
+      html += wrapLegendSection(`<div class="legend-sub">Size · ${escHtml(displayName(sc))}${reset}</div>`, body, layout);
     } else {
     const [mn,mx] = colRange(sc);
     const mnP = Number(document.getElementById('sizeMin').value)||4, mxP = Number(document.getElementById('sizeMax').value)||16;
     const mdP = (mnP+mxP)/2;
-    html += `<div class="legend-sub">Size · ${escHtml(displayName(sc))}</div>
-      <div class="size-legend"><svg width="220" height="${mxP*2+26}" viewBox="0 0 220 ${mxP*2+26}">
-        <circle cx="${mxP+4}" cy="${mxP+4}" r="${mnP}" fill="none" stroke="#8a949e"/>
-        <circle cx="${mxP*2+30}" cy="${mxP+4}" r="${mdP}" fill="none" stroke="#8a949e"/>
-        <circle cx="${mxP*3.5+56}" cy="${mxP+4}" r="${mxP}" fill="none" stroke="#8a949e"/>
-        <text x="${mxP+4}" y="${mxP*2+22}" fill="#8a949e" font-size="10" text-anchor="middle">${S.enc.size.type==='continuous'?round4(mn):'first'}</text>
-        <text x="${mxP*3.5+56}" y="${mxP*2+22}" fill="#8a949e" font-size="10" text-anchor="middle">${round4(mx)}</text>
+    const block = `<div class="size-legend"><svg width="220" height="${mxP*2+26}" viewBox="0 0 220 ${mxP*2+26}">
+        <circle cx="${mxP+4}" cy="${mxP+4}" r="${mnP}" fill="none" stroke="${stroke}"/>
+        <circle cx="${mxP*2+30}" cy="${mxP+4}" r="${mdP}" fill="none" stroke="${stroke}"/>
+        <circle cx="${mxP*3.5+56}" cy="${mxP+4}" r="${mxP}" fill="none" stroke="${stroke}"/>
+        <text x="${mxP+4}" y="${mxP*2+22}" fill="${stroke}" font-size="10" text-anchor="middle">${S.enc.size.type==='continuous'?round4(mn):'first'}</text>
+        <text x="${mxP*3.5+56}" y="${mxP*2+22}" fill="${stroke}" font-size="10" text-anchor="middle">${round4(mx)}</text>
       </svg></div>`;
+    html += wrapLegendSection(`<div class="legend-sub">Size · ${escHtml(displayName(sc))}</div>`, block, layout);
     }
   }
   const shc = S.enc.shape.col;
   if (shc){
-    html += `<div class="legend-sub">Shape · ${escHtml(displayName(shc))}</div>`;
+    let body = '';
     legendCategories(shc).forEach(v=>{
-      const cats = legendCategories(shc);
-      const sh = SHAPES[cats.indexOf(v) % SHAPES.length];
-      const on = isFilterOn(shc, v);
-      html += `<div class="legend-item filterable${on?'':' filtered-off'}" onclick="toggleFilter('${escAttr(shc)}','${escAttr(v)}')" title="Click to show/hide"><svg width="16" height="16" viewBox="-9 -9 18 18">${shapeGlyph(sh)}</svg>${escHtml(v)}</div>`;
+      const sh = shapeForValue(shc, v);
+      const on = interactive ? isFilterOn(shc, v) : true;
+      const click = interactive ? ` onclick="toggleFilter('${escAttr(shc)}','${escAttr(v)}')" title="Click to show/hide"` : '';
+      const shapeIn = interactive ? `<select class="legend-shape-select" title="Point shape" data-v="${escAttr(v)}" onclick="event.stopPropagation()" onchange="setCatShape(this.dataset.v, this.value)">${shapeSelectOptions(sh)}</select>` : '';
+      body += `<div class="legend-item${interactive?' filterable':''}${on?'':' filtered-off'}"${click}><svg width="16" height="16" viewBox="-9 -9 18 18">${shapeGlyph(sh, theme)}</svg>${escHtml(v)||'<i>(empty)</i>'}${shapeIn}</div>`;
     });
+    const reset = interactive ? ` <button type="button" class="btn filter-mini" onclick="event.stopPropagation(); resetCatShapes()" title="Clear custom shapes; use A–Z default order">Reset shapes</button>` : '';
+    html += wrapLegendSection(`<div class="legend-sub">Shape · ${escHtml(displayName(shc))}${reset}</div>`, body, layout);
   }
+  return html;
+}
+function renderLegend(){
+  const html = buildLegendHtml({ interactive:true, layout:'stack', theme:'dark' });
+  S._legendInteractiveHtml = html;
   document.getElementById('legendBody').innerHTML = html || '<div class="hint">Choose columns above to build the legend.</div>';
-  const mapBody = document.getElementById('mapLegendBody');
-  if (mapBody) mapBody.innerHTML = html;
+  renderMapLegendContent();
   const panel = document.getElementById('mapLegendPanel');
   if (panel){
     const plotReady = S.data.length>0 && S.imageSet && S.calib.valid && !!S.locX && !!S.locY;
     const showOnMap = document.getElementById('mapLegendChk')?.checked !== false;
     panel.classList.toggle('visible', plotReady && !!html && showOnMap);
   }
+  syncLegendSnapFootUi();
 }
-function shapeGlyph(sh){
-  const s = 'fill="none" stroke="#cfd6dd" stroke-width="1.6"';
+function shapeGlyph(sh, theme){
+  const stroke = legendShapeStroke(theme || 'dark');
+  const s = `fill="none" stroke="${stroke}" stroke-width="1.6"`;
   if (sh==='circle') return `<circle cx="0" cy="0" r="6" ${s}/>`;
   if (sh==='square') return `<rect x="-6" y="-6" width="12" height="12" ${s}/>`;
   return `<path d="${shapePathD(sh, 0, 0, 6)}" ${s}/>`;
@@ -3865,46 +4126,42 @@ function loadImage(src){
     img.src = src;
   });
 }
-// Rasterizes the on-map legend panel (a plain HTML overlay, not part of the
-// SVG — so it isn't captured by the overlay clone below) via html2canvas,
-// converted into the export canvas's native-resolution coordinate space.
-// Its on-map drag position and minimized state are both ignored — the
-// snapshot's Legend checkbox is the only thing that decides inclusion, and
-// inclusion always means the full expanded content, placed in a dedicated
-// right-hand margin (see downloadSnapshot) rather than overlapping the plot.
-// Callers are responsible for un-minimizing the panel first (below).
+// Renders a publication-style legend off-screen (not the on-map overlay) via html2canvas.
 function legendSnapshotScale(){
   const stage = document.getElementById('mapStage');
   const stageRect = stage?.getBoundingClientRect();
   return (stageRect && stageRect.width) ? S.imgW / stageRect.width : null;
 }
-async function captureLegendForSnapshot(){
-  const panel = document.getElementById('mapLegendPanel');
-  if (!panel || !panel.classList.contains('visible')) return null;
+async function captureLegendForSnapshot(snapOpts){
   if (typeof html2canvas === 'undefined') return { unavailable:true };
   const scale = legendSnapshotScale();
   if (!scale) return null;
-  const grip = panel.querySelector('.map-legend-grip');
-  const toggleBtn = panel.querySelector('.map-legend-toggle');
-  const hiddenVis = [grip, toggleBtn].filter(Boolean);
-  // The per-category <input type=color> swatch is native OS/browser chrome,
-  // not plain DOM+CSS content, so html2canvas can't rasterize it (it paints
-  // a blank/mismatched box instead of the actual value). Drop it from the
-  // capture rather than ship a broken swatch — the adjacent .legend-swatch
-  // span already shows the same color as plain, capturable markup.
-  const colorInputs = Array.from(panel.querySelectorAll('input[type=color]'));
-  hiddenVis.forEach(el=>el.style.visibility='hidden');
-  colorInputs.forEach(el=>el.style.display='none');
+  const { layout, theme, customBg } = snapOpts || snapLegendOpts();
+  const staging = document.getElementById('snapLegendStaging');
+  if (!staging) return null;
+  const layoutClass = layout === 'bar' ? 'snap-legend-bar' : 'snap-legend-stack';
+  const themeClass = theme === 'custom' ? 'snap-theme-light' : `snap-theme-${theme}`;
+  staging.className = `snap-legend-staging ${layoutClass} ${themeClass}`;
+  staging.style.background = theme === 'custom' ? snapLegendThemeBg('custom', customBg) : '';
+  staging.style.borderColor = theme === 'light' || theme === 'custom' ? '#cccccc' : '#2d3640';
+  staging.style.color = theme === 'light' || theme === 'custom' ? '#222222' : '#e6e9ec';
+  staging.innerHTML = buildLegendHtml({
+    interactive:false,
+    layout: layout === 'bar' ? 'bar' : 'stack',
+    theme: theme === 'custom' ? 'light' : theme
+  });
+  if (!staging.innerHTML.trim()) return null;
+  const bg = snapLegendThemeBg(theme, customBg);
   try {
-    const panelRect = panel.getBoundingClientRect();
-    if (!panelRect.width) return null;
-    const legendCanvas = await html2canvas(panel, { backgroundColor:null, scale });
-    return { canvas: legendCanvas, w: panelRect.width * scale, h: panelRect.height * scale };
+    const legendCanvas = await html2canvas(staging, { backgroundColor: bg, scale });
+    return { canvas: legendCanvas, w: legendCanvas.width, h: legendCanvas.height, layout };
   } catch(e){
     return { failed:true };
   } finally {
-    hiddenVis.forEach(el=>el.style.visibility='');
-    colorInputs.forEach(el=>el.style.display='');
+    staging.innerHTML = '';
+    staging.style.background = '';
+    staging.style.borderColor = '';
+    staging.style.color = '';
   }
 }
 async function downloadSnapshot(){
@@ -3921,16 +4178,10 @@ async function downloadSnapshot(){
   const baseFont = Math.max(14, Math.round(S.imgW * 0.018));
   const titleFont = Math.round(baseFont * 1.25);
   const marginTop = hasTitle ? Math.round(titleFont * 2.2) : 0;
-  const marginBottom = hasX ? Math.round(baseFont * 2.4) : 0;
+  const xLabelSpace = hasX ? Math.round(baseFont * 2.4) : 0;
   const marginLeft = hasY ? Math.round(baseFont * 2.4) : 0;
-  // The legend gets its own buffer zone to the right of the plot — the one
-  // side with no axis label — so it never overlaps plotted data. The Legend
-  // checkbox is the only thing that decides whether it's included; a
-  // minimized on-map panel is temporarily expanded for the capture so the
-  // snapshot always shows the full legend, then restored either way.
-  const legendPanel = document.getElementById('mapLegendPanel');
-  const wasMinimized = includeLegend && !!legendPanel && legendPanel.classList.contains('minimized');
-  if (wasMinimized) legendPanel.classList.remove('minimized');
+  const snapOpts = snapLegendOpts();
+  const legendBarLayout = includeLegend && snapOpts.layout === 'bar';
   const svg = document.getElementById('overlay').cloneNode(true);
   svg.setAttribute('width', S.imgW);
   svg.setAttribute('height', S.imgH);
@@ -3940,16 +4191,24 @@ async function downloadSnapshot(){
   try {
     [overlayImg, legendResult] = await Promise.all([
       loadImage('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml)),
-      includeLegend ? captureLegendForSnapshot() : Promise.resolve(null)
+      includeLegend ? captureLegendForSnapshot(snapOpts) : Promise.resolve(null)
     ]);
   } catch(e){
-    if (wasMinimized) legendPanel.classList.add('minimized');
     setStatus('exportStatus','err','Snapshot failed while rendering the point overlay.');
     return;
   }
-  if (wasMinimized) legendPanel.classList.add('minimized');
   const legendGap = Math.round(baseFont * 1.2);
-  const marginRight = (legendResult && legendResult.canvas) ? Math.round(legendResult.w) + legendGap : 0;
+  let marginRight = 0;
+  let marginBottom = xLabelSpace;
+  let legendBarH = 0;
+  if (legendResult && legendResult.canvas){
+    if (legendBarLayout){
+      legendBarH = Math.round(legendResult.h) + legendGap;
+      marginBottom += legendBarH;
+    } else {
+      marginRight = Math.round(legendResult.w) + legendGap;
+    }
+  }
   const cv = document.createElement('canvas');
   cv.width = S.imgW + marginLeft + marginRight;
   cv.height = S.imgH + marginTop + marginBottom;
@@ -3966,7 +4225,10 @@ async function downloadSnapshot(){
   }
   if (hasX){
     g.font = `600 ${baseFont}px "Segoe UI", sans-serif`;
-    g.fillText(S.labels.xAxis, marginLeft + S.imgW/2, cv.height - Math.round(baseFont*0.8));
+    const xY = legendBarLayout
+      ? marginTop + S.imgH + Math.round(baseFont * 1.2)
+      : cv.height - Math.round(baseFont * 0.8);
+    g.fillText(S.labels.xAxis, marginLeft + S.imgW/2, xY);
   }
   if (hasY){
     g.save();
@@ -3977,9 +4239,15 @@ async function downloadSnapshot(){
     g.restore();
   }
   if (legendResult && legendResult.canvas){
-    const lx = marginLeft + S.imgW + legendGap;
-    const ly = marginTop + Math.max(0, Math.round((S.imgH - legendResult.h) / 2));
-    g.drawImage(legendResult.canvas, lx, ly, legendResult.w, legendResult.h);
+    if (legendBarLayout){
+      const lx = marginLeft + Math.max(0, Math.round((S.imgW - legendResult.w) / 2));
+      const ly = marginTop + S.imgH + xLabelSpace + legendGap;
+      g.drawImage(legendResult.canvas, lx, ly, legendResult.w, legendResult.h);
+    } else {
+      const lx = marginLeft + S.imgW + legendGap;
+      const ly = marginTop + Math.max(0, Math.round((S.imgH - legendResult.h) / 2));
+      g.drawImage(legendResult.canvas, lx, ly, legendResult.w, legendResult.h);
+    }
   }
   try {
     triggerDownload(cv.toDataURL('image/png'), exportBaseName() + '-snapshot.png');
