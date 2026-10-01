@@ -4177,6 +4177,7 @@ async function downloadSnapshot(){
   const hasY = includeY && !!S.labels.yAxis;
   const baseFont = Math.max(14, Math.round(S.imgW * 0.018));
   const titleFont = Math.round(baseFont * 1.25);
+  const outerPad = Math.round(baseFont * 1.1);
   const marginTop = hasTitle ? Math.round(titleFont * 2.2) : 0;
   const xLabelSpace = hasX ? Math.round(baseFont * 2.4) : 0;
   const marginLeft = hasY ? Math.round(baseFont * 2.4) : 0;
@@ -4209,30 +4210,31 @@ async function downloadSnapshot(){
       marginRight = Math.round(legendResult.w) + legendGap;
     }
   }
+  const ox = outerPad, oy = outerPad;
   const cv = document.createElement('canvas');
-  cv.width = S.imgW + marginLeft + marginRight;
-  cv.height = S.imgH + marginTop + marginBottom;
+  cv.width = ox + marginLeft + S.imgW + marginRight + outerPad;
+  cv.height = oy + marginTop + S.imgH + marginBottom + outerPad;
   const g = cv.getContext('2d');
   g.fillStyle = '#ffffff'; g.fillRect(0,0,cv.width,cv.height);
-  g.drawImage(document.getElementById('bgImage'), marginLeft, marginTop, S.imgW, S.imgH);
-  g.drawImage(overlayImg, marginLeft, marginTop, S.imgW, S.imgH);
+  g.drawImage(document.getElementById('bgImage'), ox + marginLeft, oy + marginTop, S.imgW, S.imgH);
+  g.drawImage(overlayImg, ox + marginLeft, oy + marginTop, S.imgW, S.imgH);
   g.fillStyle = '#1a1a1a';
   g.textAlign = 'center';
   g.textBaseline = 'alphabetic';
   if (hasTitle){
     g.font = `600 ${titleFont}px "Segoe UI", sans-serif`;
-    g.fillText(S.labels.title, marginLeft + S.imgW/2, Math.round(titleFont*1.4));
+    g.fillText(S.labels.title, ox + marginLeft + S.imgW/2, oy + Math.round(titleFont*1.4));
   }
   if (hasX){
     g.font = `600 ${baseFont}px "Segoe UI", sans-serif`;
     const xY = legendBarLayout
-      ? marginTop + S.imgH + Math.round(baseFont * 1.2)
-      : cv.height - Math.round(baseFont * 0.8);
-    g.fillText(S.labels.xAxis, marginLeft + S.imgW/2, xY);
+      ? oy + marginTop + S.imgH + Math.round(baseFont * 1.2)
+      : cv.height - outerPad - Math.round(baseFont * 0.8);
+    g.fillText(S.labels.xAxis, ox + marginLeft + S.imgW/2, xY);
   }
   if (hasY){
     g.save();
-    g.translate(Math.round(baseFont*1.6), marginTop + S.imgH/2);
+    g.translate(ox + Math.round(baseFont*1.6), oy + marginTop + S.imgH/2);
     g.rotate(-Math.PI/2);
     g.font = `600 ${baseFont}px "Segoe UI", sans-serif`;
     g.fillText(S.labels.yAxis, 0, 0);
@@ -4240,12 +4242,12 @@ async function downloadSnapshot(){
   }
   if (legendResult && legendResult.canvas){
     if (legendBarLayout){
-      const lx = marginLeft + Math.max(0, Math.round((S.imgW - legendResult.w) / 2));
-      const ly = marginTop + S.imgH + xLabelSpace + legendGap;
+      const lx = ox + marginLeft + Math.max(0, Math.round((S.imgW - legendResult.w) / 2));
+      const ly = oy + marginTop + S.imgH + xLabelSpace + legendGap;
       g.drawImage(legendResult.canvas, lx, ly, legendResult.w, legendResult.h);
     } else {
-      const lx = marginLeft + S.imgW + legendGap;
-      const ly = marginTop + Math.max(0, Math.round((S.imgH - legendResult.h) / 2));
+      const lx = ox + marginLeft + S.imgW + legendGap;
+      const ly = oy + marginTop + Math.max(0, Math.round((S.imgH - legendResult.h) / 2));
       g.drawImage(legendResult.canvas, lx, ly, legendResult.w, legendResult.h);
     }
   }
