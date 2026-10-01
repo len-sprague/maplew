@@ -1,0 +1,122 @@
+{
+  "version": 1,
+  "locX": "F2_lobanov",
+  "locY": "F1_lobanov",
+  "mercator": false,
+  "calib": {
+    "mode": "edges",
+    "mercator": false,
+    "locX": "F2_lobanov",
+    "locY": "F1_lobanov",
+    "L": 2.75,
+    "R": -2.75,
+    "T": -2.75,
+    "B": 2.75
+  },
+  "enc": {
+    "color": {
+      "col": "standard",
+      "type": "categorical",
+      "ramp": "viridis",
+      "catColors": {
+        "e": "#0000ff",
+        "ɛ": "#9696fa",
+        "o": "#ff0000",
+        "ɔ": "#ff9696"
+      }
+    },
+    "size": {
+      "col": "match",
+      "type": "categorical",
+      "minPx": 4,
+      "maxPx": 16,
+      "catSizes": {
+        "FALSE": 10,
+        "TRUE": 5
+      }
+    },
+    "shape": {
+      "col": "language",
+      "catShapes": {
+        "tyr": "triangle",
+        "bil": "star",
+        "ita": "circle"
+      }
+    }
+  },
+  "filters": {
+    "standard": {
+      "e": true,
+      "o": true,
+      "ɔ": true,
+      "ɛ": true
+    },
+    "match": {
+      "FALSE": true,
+      "TRUE": true
+    },
+    "language": {
+      "bil": true,
+      "ita": true,
+      "tyr": true
+    }
+  },
+  "speakerFilter": {
+    "multiOnly": false,
+    "selected": []
+  },
+  "display": {
+    "baseSize": "9",
+    "opacity": "0.65",
+    "stroke": true,
+    "zoomScale": false,
+    "ring": false,
+    "grat": false,
+    "jitter": false,
+    "drag": false,
+    "addPoint": false,
+    "mapLegend": true
+  },
+  "roleOverrides": {},
+  "columnVisibility": {
+    "ID": true,
+    "desc::start_item_id": true,
+    "desc::speaker": true,
+    "desc::word": true,
+    "front_back": true,
+    "labels": true,
+    "standard": true,
+    "language": true,
+    "gender": true,
+    "F1": true,
+    "F2": true,
+    "F1_lobanov": true,
+    "F2_lobanov": true,
+    "match": true,
+    "audio_url": true
+  },
+  "columnRecordOrder": [
+    "ID",
+    "desc::start_item_id",
+    "desc::speaker",
+    "desc::word",
+    "front_back",
+    "labels",
+    "standard",
+    "language",
+    "gender",
+    "F1",
+    "F2",
+    "F1_lobanov",
+    "F2_lobanov",
+    "match",
+    "audio_url"
+  ],
+  "activeBasemapId": null,
+  "labels": {
+    "title": "Bozen-Bolzano dataset",
+    "xAxis": "F2 (-z)",
+    "yAxis": "F1 (-z)",
+    "mode": "attached"
+  }
+}
