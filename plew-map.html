@@ -1867,40 +1867,53 @@ function alignFileLookup(name){
 function fileStem(name){
   return (name||'').replace(/^.*\//,'').replace(/\.[^.]+$/,'');
 }
-function alignFilenamesForRow(row){
-  const names = [];
-  const add = (n)=>{
-    if (!n) return;
-    const base = n.split('/').pop();
+function alignBasename(raw){
+  return String(raw||'').trim().split(/[?#]/)[0].split('/').pop();
+}
+function alignSourcesForRow(row){
+  const sources = [];
+  const add = (raw)=>{
+    if (!raw) return;
+    const trimmed = String(raw).trim();
+    const base = alignBasename(trimmed);
     if (!/\.(eaf|textgrid)$/i.test(base)) return;
-    if (!names.some(x=>x.toLowerCase()===base.toLowerCase())) names.push(base);
+    if (sources.some(x=>x.key.toLowerCase()===base.toLowerCase())) return;
+    const url = /^(https?:)\/\//i.test(trimmed) ? trimmed : '';
+    sources.push({ key:base, url });
   };
   S.headers.forEach(h=>{
     const dn = displayName(h).toLowerCase();
     if (S.cols[h]?.role==='med' || /eaf|textgrid|elan|praat/.test(dn)) add(row[h]);
   });
-  const audio = (row['med::audio']||'').split('/').pop();
+  const audio = alignBasename(row['med::audio']||'');
   if (audio){
     const stem = fileStem(audio);
     add(stem+'.eaf'); add(stem+'.TextGrid');
   }
-  return names.filter(n=>alignFileLookup(n));
+  return sources.filter(s=>alignFileLookup(s.key) || s.url);
 }
-async function loadAlignBundle(names){
-  const bundle = { eaf:null, textgrid:null, eafName:'', tgName:'' };
-  for (const name of names){
-    const hit = alignFileLookup(name);
-    if (!hit) continue;
+async function loadAlignBundle(sources){
+  const bundle = { eaf:null, textgrid:null, eafName:'', tgName:'', errors:[] };
+  for (const src of sources){
+    const hit = alignFileLookup(src.key);
+    const cacheKey = hit ? hit.key : src.key;
     try {
-      if (!S.alignCache[hit.key]){
-        const text = await hit.file.text();
-        S.alignCache[hit.key] = /\.eaf$/i.test(hit.key) ? parseEAF(text) : parseTextGrid(text);
+      if (!S.alignCache[cacheKey]){
+        let text;
+        if (hit) text = await hit.file.text();
+        else {
+          const res = await fetch(src.url);
+          if (!res.ok) throw new Error('HTTP '+res.status);
+          text = await res.text();
+        }
+        S.alignCache[cacheKey] = /\.eaf$/i.test(cacheKey) ? parseEAF(text) : parseTextGrid(text);
       }
-      const parsed = S.alignCache[hit.key];
-      if (parsed.kind==='eaf' && !bundle.eaf){ bundle.eaf = parsed; bundle.eafName = hit.key; }
-      if (parsed.kind==='textgrid' && !bundle.textgrid){ bundle.textgrid = parsed; bundle.tgName = hit.key; }
+      const parsed = S.alignCache[cacheKey];
+      if (parsed.kind==='eaf' && !bundle.eaf){ bundle.eaf = parsed; bundle.eafName = cacheKey; }
+      if (parsed.kind==='textgrid' && !bundle.textgrid){ bundle.textgrid = parsed; bundle.tgName = cacheKey; }
     } catch(e){
-      S.alignCache[hit.key] = { kind: /\.eaf$/i.test(hit.key) ? 'eaf' : 'textgrid', tiers:[] };
+      delete S.alignCache[cacheKey];
+      bundle.errors.push(src.key);
     }
   }
   return bundle;
@@ -2125,15 +2138,15 @@ function bindAlignViewer(root, audio){
 async function fillAlignViewer(row){
   const mount = document.getElementById('alignMount');
   if (!mount) return;
-  const names = alignFilenamesForRow(row);
-  if (!names.length) return;
+  const sources = alignSourcesForRow(row);
+  if (!sources.length) return;
   mount.innerHTML = `<div class="hint">Loading transcript…</div>`;
   try {
-    const bundle = await loadAlignBundle(names);
-    const sources = [];
-    if (bundle.eaf) sources.push({ id:'eaf', label:'ELAN', file:bundle.eafName, parsed:bundle.eaf });
-    if (bundle.textgrid) sources.push({ id:'textgrid', label:'TextGrid', file:bundle.tgName, parsed:bundle.textgrid });
-    const panes = sources.map(s=>{
+    const bundle = await loadAlignBundle(sources);
+    const loaded = [];
+    if (bundle.eaf) loaded.push({ id:'eaf', label:'ELAN', file:bundle.eafName, parsed:bundle.eaf });
+    if (bundle.textgrid) loaded.push({ id:'textgrid', label:'TextGrid', file:bundle.tgName, parsed:bundle.textgrid });
+    const panes = loaded.map(s=>{
       let html;
       if (s.id==='textgrid' && s.parsed.tiers.length) html = textGridHTML(s.parsed);
       else if (s.id==='eaf') html = eafChunksHTML(s.parsed);
@@ -2143,7 +2156,15 @@ async function fillAlignViewer(row){
       }
       return { ...s, html };
     }).filter(s=>s.html);
-    if (!panes.length){ mount.innerHTML = ''; return; }
+    if (!panes.length){
+      mount.innerHTML = bundle.errors.length
+        ? `<div class="hint">Could not fetch ${escHtml(bundle.errors.join(', '))}. The host may be blocking cross-origin access, or the file is missing.</div>`
+        : '';
+      return;
+    }
+    const fetchHint = bundle.errors.length
+      ? `<div class="hint" style="margin-top:6px;">Could not fetch ${escHtml(bundle.errors.join(', '))}.</div>`
+      : '';
     const tabs = panes.length>1
       ? `<div class="media-tabs">` + panes.map((s,i)=>
           `<button class="media-tab ${i===0?'active':''}" onclick="switchAlignSource(this,${i})">${escHtml(s.label)}</button>`
@@ -2159,7 +2180,7 @@ async function fillAlignViewer(row){
       </div>`).join('');
     mount.innerHTML = `<div class="media-section"><div class="media-section-title">Transcript</div>
       ${tabs}${bodies}
-      <div class="hint" style="margin-top:6px;">ELAN: ▶/⏸ plays a chunk. TextGrid: click the waveform to play. Click text to correct. Download the file to keep changes — the browser cannot overwrite the original.</div></div>`;
+      <div class="hint" style="margin-top:6px;">ELAN: ▶/⏸ plays a chunk. TextGrid: click the waveform to play. Click text to correct. Download the file to keep changes — the browser cannot overwrite the original.</div>${fetchHint}</div>`;
     const audio = document.querySelector('#modalBody audio');
     mount.querySelectorAll('.align-viewer').forEach(v=>bindAlignViewer(v, audio));
   } catch(e){
@@ -2438,7 +2459,8 @@ function handleFiles(fileList){
     } catch(e){ setStatus('inputStatus','warn','Some media files could not be read.'); }
     alignFiles.forEach(f=>{
       S.alignFiles[f.name] = f;
-      delete S.alignCache[f.name];
+      const lower = f.name.toLowerCase();
+      Object.keys(S.alignCache).forEach(k=>{ if (k.toLowerCase()===lower) delete S.alignCache[k]; });
     });
     const bits = [];
     if (csvFile) bits.push(`${isJsonFilename(csvFile.name)?'JSON':'CSV'}: ${S.data.length} rows, ${S.headers.length} columns`);
