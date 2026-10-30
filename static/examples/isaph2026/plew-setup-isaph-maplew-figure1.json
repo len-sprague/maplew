@@ -1,0 +1,148 @@
+{
+  "version": 1,
+  "locX": "disfluencies",
+  "locY": "rate",
+  "mercator": false,
+  "calib": {
+    "mode": "edges",
+    "mercator": false,
+    "locX": "disfluencies",
+    "locY": "rate",
+    "L": -0.36,
+    "R": 6.36,
+    "T": 7.6438,
+    "B": 1.2262
+  },
+  "enc": {
+    "color": {
+      "col": "rating",
+      "type": "categorical",
+      "ramp": "viridis",
+      "catColors": {
+        "w": "#0000ff",
+        "y": "#ff7f7f",
+        "z": "#ff0000",
+        "x": "#7f7fff",
+        "a": "#ffffff",
+        "g": "#000000",
+        "b": "#d2d2d2",
+        "c": "#aaaaaa",
+        "d": "#7f7f7f",
+        "f": "#282828",
+        "e": "#505050"
+      }
+    },
+    "size": {
+      "col": "dim::image",
+      "type": "categorical",
+      "minPx": 15,
+      "maxPx": 10,
+      "catSizes": {
+        "yes": 5
+      }
+    },
+    "shape": {
+      "col": "",
+      "catShapes": {}
+    }
+  },
+  "filters": {
+    "rating": {
+      "a": false,
+      "b": false,
+      "c": false,
+      "d": false,
+      "e": false,
+      "f": false,
+      "g": false,
+      "w": true,
+      "x": false,
+      "y": false,
+      "z": true
+    },
+    "dim::image": {
+      "no": true,
+      "yes": true
+    }
+  },
+  "speakerFilter": {
+    "multiOnly": false,
+    "selected": []
+  },
+  "display": {
+    "baseSize": "8",
+    "opacity": "0.55",
+    "stroke": true,
+    "zoomScale": false,
+    "ring": false,
+    "grat": false,
+    "jitter": true,
+    "drag": false,
+    "addPoint": false,
+    "mapLegend": true
+  },
+  "roleOverrides": {
+    "med::image": "dim"
+  },
+  "columnVisibility": {
+    "ID": true,
+    "time": true,
+    "rater": true,
+    "rating": true,
+    "desc::rater": true,
+    "dim::image": true,
+    "med::audio": true,
+    "med::video": true,
+    "med::image": true,
+    "desc::text": true,
+    "syllables": true,
+    "disfluencies": true,
+    "duration": true,
+    "rate": true,
+    "mean": true,
+    "sd": true,
+    "excursion": true,
+    "min": true,
+    "max": true,
+    "res::hide_ipu_code": true,
+    "res::temp_audio_code": true,
+    "res::recording": true,
+    "res::snippet": true,
+    "res::offset": true,
+    "res::experimentalsequence": true
+  },
+  "columnRecordOrder": [
+    "ID",
+    "time",
+    "rater",
+    "rating",
+    "desc::rater",
+    "dim::image",
+    "med::audio",
+    "med::video",
+    "med::image",
+    "desc::text",
+    "syllables",
+    "disfluencies",
+    "duration",
+    "rate",
+    "mean",
+    "sd",
+    "excursion",
+    "min",
+    "max",
+    "res::hide_ipu_code",
+    "res::temp_audio_code",
+    "res::recording",
+    "res::snippet",
+    "res::offset",
+    "res::experimentalsequence"
+  ],
+  "activeBasemapId": null,
+  "labels": {
+    "title": "",
+    "xAxis": "Disfluencies",
+    "yAxis": "Speech rate",
+    "mode": "attached"
+  }
+}
