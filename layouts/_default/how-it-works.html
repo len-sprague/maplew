@@ -1,0 +1,3 @@
+{{ $html := readFile "how-it-works.html" }}
+{{ $boot := printf `<script>window.PLEW_NAV={editor:%s,guide:%s,examples:%s};</script>` (.Site.Home.RelPermalink | jsonify) ("user-guide/" | relURL | jsonify) ("examples/" | relURL | jsonify) }}
+{{ replace $html "<body>" (printf "<body>\n%s" $boot) | safeHTML }}
