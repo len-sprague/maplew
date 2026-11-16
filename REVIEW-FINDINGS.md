@@ -1,6 +1,8 @@
 # Maplew review: speedups, streamlining and bugs
 
-A read-through of the whole repository (all 4,458 lines of `plew-map.html`, the Hugo layouts, the example manifests and every doc), with the suspected slow spots measured in headless Chromium. **Nothing in `plew-map.html` was changed by this review.** Everything below is a proposal to pick from.
+A read-through of the whole repository (all 4,458 lines of `plew-map.html`, the Hugo layouts, the example manifests and every doc), with the suspected slow spots measured in headless Chromium. The review itself changed nothing in `plew-map.html`. Fixes made since are marked **Fixed** below and keep their original description as the record of what was wrong; everything else is still a proposal to pick from.
+
+**Status, November 2026:** P1, B1 and B3 are fixed. P2 is partly fixed (files are fetched six at a time; fetching media on demand is still open). Each fix is guarded by checks of the same name in `tools/checks/behaviour.js`.
 
 For a picture of how the pieces fit together, see the [How it works](how-it-works.html) page (also on the site at `/how-it-works/`) or the diagrams in [README.md](README.md#how-it-works).
 
@@ -8,11 +10,11 @@ For a picture of how the pieces fit together, see the [How it works](how-it-work
 
 | # | Finding | Kind | Effect today | Effort |
 |---|---------|------|--------------|--------|
-| [P1](#p1-continuous-colour-or-size-makes-every-redraw-quadratic) | Continuous colour or size rescans the whole table once per point | Speed | 5,000 rows: 5 s per redraw. 20,000 rows: 73 s | Small |
-| [B1](#b1-a-second-dataset-inherits-the-first-ones-edge-values) | Loading a second dataset, or changing the X or Y column, keeps the old calibration edges | Bug | New data plots with 0 points visible | Small |
-| [P2](#p2-example-pages-download-every-file-one-at-a-time-before-showing-anything) | Example pages fetch every media file, one at a time, before the plot appears | Speed | ISAPh: 108 requests, 16.7 MB before first paint | Medium |
+| [P1](#p1-continuous-colour-or-size-makes-every-redraw-quadratic) | Continuous colour or size rescans the whole table once per point | Speed | **Fixed.** Was 5,000 rows: 5 s per redraw; 20,000 rows: 73 s | Small |
+| [B1](#b1-a-second-dataset-inherits-the-first-ones-edge-values) | Loading a second dataset, or changing the X or Y column, keeps the old calibration edges | Bug | **Fixed.** New data plotted with 0 points visible | Small |
+| [P2](#p2-example-pages-download-every-file-one-at-a-time-before-showing-anything) | Example pages fetch every media file, one at a time, before the plot appears | Speed | **Partly fixed** (parallel fetch). ISAPh: 108 requests, 16.7 MB before first paint | Medium |
 | [B2](#b2-apostrophes-in-a-category-or-column-name-break-filters) | An apostrophe in a category value breaks its filter chip and legend click | Bug | `Valle d'Aosta` cannot be filtered | Small |
-| [B3](#b3-tables-above-roughly-100000-rows-fail-to-load) | Tables above roughly 100,000 rows throw on load | Bug | 200,000 rows: `RangeError`, nothing loads | Small |
+| [B3](#b3-tables-above-roughly-100000-rows-fail-to-load) | Tables above roughly 100,000 rows throw on load | Bug | **Fixed.** Was 200,000 rows: `RangeError`, nothing loads | Small |
 | [P3](#p3-every-change-rebuilds-everything) | Every change rebuilds every point, both legends and both filter panels | Speed | Linear cost per click, wheel step and slider tick | Medium |
 | [B4](#b4-the-colour-ramp-does-not-survive-export-setup--import-setup) | Colour ramp is lost on Export setup → Import setup | Bug | Imported view falls back to the dropdown's current ramp | Small |
 | [B5](#b5-a-line-break-inside-a-cell-corrupts-the-next-save--reload) | A line break typed into a long-text field corrupts the next save and reload | Bug | One record becomes two broken rows | Medium |
@@ -23,7 +25,7 @@ For a picture of how the pieces fit together, see the [How it works](how-it-work
 | [S1–S8](#streamlining) | Duplicated or dataset-specific code, three calibration carriers, no-op handlers | Streamlining | Harder to maintain and to explain | Varies |
 | [D1–D9](#documentation-mismatches) | Docs that disagree with the code | Docs | Fixed in this PR where the code settles it, listed where it needs your call | Done or flagged |
 
-Suggested order: P1 and B1 first (large effect, a few lines each), then B2 and B3, then P2.
+Suggested order for what remains: B2 (apostrophes), then on-demand media (the rest of P2), then B4 and B5.
 
 ## How the numbers were taken
 
@@ -54,6 +56,8 @@ Network time was not measured: the test server was local, so latency was near ze
 
 ### P1. Continuous colour or size makes every redraw quadratic
 
+> **Fixed.** `colRange()` and `legendCategories()` now remember their answer per column for the duration of the point loop in `renderAll()` (the `renderMemo` variable), and nowhere else, so no edit path can see a stale value. Measured on the same synthetic table: 5,000 rows 1,639 ms → 51 ms; 20,000 rows 21,185 ms → 240 ms (same machine, same day; the figures in the table below are from the original review run). Drawing output is byte-identical on both demos and all seven example pages. The other per-row work listed in the last paragraph of this section (DOM reads inside the loop) was left alone. Checks: `P1-*`.
+
 `colorFor(row)` and `sizeFor(row)` are called once per point. In continuous mode each call runs `colRange(col)`, which converts and scans the entire column to find its min and max. So a redraw of *n* rows does *n* full scans per channel.
 
 ```js
@@ -70,6 +74,8 @@ The categorical path has the same shape on a smaller scale: `colorFor`, `shapeFo
 Related per-row work inside the same loop that can move out of it: `sizeFor` reads three DOM inputs per row; `dragModeOn()` and `jitterOn()` read a checkbox per row; `rowPassesSpeakerFilter` re-finds the speaker column per row; `shapeFor(row)` is called twice per point when drag mode is on.
 
 ### P2. Example pages download every file one at a time before showing anything
+
+> **Partly fixed.** Fix 1 below is done: `loadRemoteExample()` fetches `EXAMPLE_FETCH_CONCURRENCY` (6) files at a time and hands `handleFiles()` the same list in the same order. A failed file still fails the whole load with the same message. Fix 2 (media on demand) is **open** and is where most of the remaining wait is. Checks: `P2-*`.
 
 `loadRemoteExample()` walks the manifest with `await fetch()` inside a `for` loop, so files arrive strictly one after another, and `handleFiles()` runs only after the last one. The ISAPh example fetches 107 WAV and PNG files a visitor may never open before the 356 points appear.
 
@@ -138,6 +144,14 @@ Each of these was reproduced in the browser.
 
 ### B1. A second dataset inherits the first one's edge values
 
+> **Fixed**, with a narrower rule than the one first proposed below. While fixing it, one case turned out to be relied on: loading an updated table onto the same map should keep the map's calibration. The rule now is:
+>
+> - Edges that are still the automatic prefill are guessed again when the X or Y column changes or a new table loads.
+> - Edges that were typed, or came from a CSV row, sidecar or setup file, are kept when a column changes. They are kept across a new table only when a background image the user supplied is showing; on a blank frame or a demo canvas they are cleared and guessed again.
+> - A prefill is no longer stored on a basemap when you switch away from it, so it stays a prefill when you come back.
+>
+> Saving a record, toggling Mercator and re-applying a basemap do not re-guess, so a plot does not rescale under the user. One visible change: on a blank frame, re-dropping a table after typing axis ranges now re-guesses them (a CSV saved with **Save to CSV** carries its ranges and is unaffected). Still open and unrelated to edges: the calibration *mode* is not reset by a new table, so a table loaded while in three-point mode needs its three points placed again. Checks: `B1-*`.
+
 `ingestCSV()` resets `S.calib.valid`, `affine`, `pts` and `placing`, but not `S.calib.edges` or the four edge inputs. `prefillEdges()` then sees `E.L !== null` and declines to overwrite ("don't clobber user input").
 
 Reproduce: load a CSV with x, y in 1–4 and press **No background**; then load a CSV with x, y in 1000–4000. The edges stay at `[0.88, 3.12] × [1.88, 4.12]`, zero points are drawn, and the status still says *"Prefilled from the data range (approximate)"*.
@@ -161,6 +175,8 @@ Affected: filter chips, legend click-to-filter, All/None buttons, column-role ey
 The legend's colour, size and shape inputs already use the safe pattern (`data-v="…"` plus `this.dataset.v`). Applying it everywhere fixes the bug and also closes the door on a CSV cell injecting script into a hosted example page.
 
 ### B3. Tables above roughly 100,000 rows fail to load
+
+> **Fixed** by the same change as P1: `colRange()` uses a plain loop. A 200,000-row table loads in about half a second and draws in about two. Check: `B3-200k-rows` (run with `--big`).
 
 `colRange()` uses `Math.min(...nums)`. Spreading a very large array overflows the call stack. A 200,000-row table throws `RangeError: Maximum call stack size exceeded` during `ingestCSV()` and nothing appears.
 

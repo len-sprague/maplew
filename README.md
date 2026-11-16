@@ -85,7 +85,11 @@ flowchart LR
     S --> exp
 ```
 
-The How it works page has a clickable version of this map, a table of which action triggers which handler, and notes on the parts that are easy to miss. Measured slow spots, reproducible bugs and streamlining ideas are in [`REVIEW-FINDINGS.md`](REVIEW-FINDINGS.md).
+The How it works page has a clickable version of this map and a table of which action triggers which handler. [`CODE-MAP.md`](CODE-MAP.md) is the full reference: every state field, the call tree of each entry point, and an index of all functions.
+
+**Contributing a change?** Follow [`tools/code-userguide-review.md`](tools/code-userguide-review.md) before opening a pull request. It runs the checks in `tools/checks/` and brings the documents back in line with the code. AI coding tools are pointed at it by `CLAUDE.md` and `AGENTS.md`.
+
+Measured slow spots, reproducible bugs and streamlining ideas are in [`REVIEW-FINDINGS.md`](REVIEW-FINDINGS.md).
 
 ## Which document do I need?
 
@@ -97,7 +101,9 @@ The How it works page has a clickable version of this map, a table of which acti
 | Publish my own dataset as an example page | [Sharing your own example dataset](#sharing-your-own-example-dataset) below |
 | Cite or re-download the example corpora | [`DATA-SOURCES.md`](DATA-SOURCES.md) |
 | See what changed between versions | [`CHANGELOG.md`](CHANGELOG.md) |
+| Find my way around the code: state, call paths, every function | [`CODE-MAP.md`](CODE-MAP.md) (site: `/code-map/`) |
 | Find known slow spots and bugs before changing the code | [`REVIEW-FINDINGS.md`](REVIEW-FINDINGS.md) |
+| Check a change before opening a pull request | [`tools/code-userguide-review.md`](tools/code-userguide-review.md) and [`tools/README.md`](tools/README.md) |
 | Add plew-map to the PLeW site (one-time, historical) | [`plew-map-integration-guide.md`](plew-map-integration-guide.md) |
 
 ## Example data

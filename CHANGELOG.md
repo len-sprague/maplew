@@ -6,6 +6,17 @@ All notable changes to **plew-map** in this repo. Format loosely follows [Keep a
 
 Work-in-progress on `plew-map.html`; not yet committed or merged to `main`.
 
+### Fixed
+- **Slow redraws with continuous colour or size.** One redraw of 20,000 rows went from about 21 s to about 0.25 s. Nothing looks different; the column's range is now worked out once per redraw instead of once per point.
+- **Very large tables.** Tables above roughly 100,000 rows failed to load; 200,000 rows now load and draw.
+- **Edge values after a new table or a change of X / Y.** Edge values that are still the automatic guess are guessed again when you load another table or pick a different X or Y column, so points no longer vanish. Edge values you typed or loaded are kept, except on a blank frame, where a new table starts from a fresh guess.
+- **Example pages load faster.** Files are fetched six at a time instead of one after another.
+
+### Developer tooling
+- `CODE-MAP.md` (site: `/code-map/`, linked from the editor sidebar): a reference to the code.
+- `tools/code-userguide-review.md`: the review procedure to run after every change, with `tools/checks/code-health.js`, `behaviour.js` and `links.js`.
+- `CLAUDE.md`, `AGENTS.md`: point AI coding tools at that procedure.
+
 ### Documentation
 - New **How it works** page (`how-it-works.html`, served at `/how-it-works/` and linked from the editor sidebar, the user guide and the example gallery): a six-step walkthrough for people bringing their own data, and a map of the internals for maintainers.
 - `REVIEW-FINDINGS.md`: measured slow spots, reproducible bugs and streamlining ideas from a full read of the code. No change to `plew-map.html`.
