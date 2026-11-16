@@ -1,3 +1,4 @@
 {{ $html := readFile "plew-map.html" }}
 {{ $boot := printf `<script>window.PLEW_HUGO=true;window.PLEW_EXAMPLES_INDEX=%s;window.PLEW_GUIDE=%s;</script>` ("examples/" | relURL | jsonify) ("user-guide/" | relURL | jsonify) }}
-{{ replace $html "<body>" (printf "<body>\n%s" $boot) | safeHTML }}
+{{ $how := printf `<script>document.addEventListener('DOMContentLoaded',function(){var g=document.getElementById('guideNav');if(!g)return;var p=g.cloneNode(true);p.id='howNav';p.style.display='';var a=p.querySelector('a');a.href=%s;a.textContent='How it works \u2192';g.after(p);});</script>` ("how-it-works/" | relURL | jsonify) }}
+{{ replace $html "<body>" (printf "<body>\n%s%s" $boot $how) | safeHTML }}

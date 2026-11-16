@@ -6,6 +6,12 @@ All notable changes to **plew-map** in this repo. Format loosely follows [Keep a
 
 Work-in-progress on `plew-map.html`; not yet committed or merged to `main`.
 
+### Documentation
+- New **How it works** page (`how-it-works.html`, served at `/how-it-works/` and linked from the editor sidebar, the user guide and the example gallery): a six-step walkthrough for people bringing their own data, and a map of the internals for maintainers.
+- `REVIEW-FINDINGS.md`: measured slow spots, reproducible bugs and streamlining ideas from a full read of the code. No change to `plew-map.html`.
+- `README.md`: diagrams, a "Which document do I need?" table, corrected clone URL.
+- `README-plew-map.md`: sections for filters and legend controls, multiple backgrounds, and transcripts; corrected the shape list and the Snapshot PNG description; known limits listed.
+
 ### Added
 
 #### Sidebar & plot viewing usability

@@ -4,6 +4,8 @@ Four files for exercising the full upload → calibrate → encode flow by hand.
 
 ## Files
 
+Of the files below, only `demo-atlas-calibrated.csv` is in this repository. To get the others, press the matching **Demo** button in plew-map: **Save to CSV** then gives you the table (delete its last `__PLEWMAP_CALIB__` row for the uncalibrated version). The two background PNGs are drawn by the demo buttons and cannot be downloaded on their own; for the TOEIC walkthrough, **No background** produces an equivalent 900×640 frame. The "design doc" mentioned below is likewise not part of this repository.
+
 | File | What it is |
 |---|---|
 | `demo-atlas.csv` | 24 settlements: `loc::lon`, `loc::lat`, `dim::language`, `dim::vowel`, `desc::note`, `med::video` (YouTube link → tests the modal embed) |

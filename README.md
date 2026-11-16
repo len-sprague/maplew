@@ -11,8 +11,8 @@ Maplew's early versions were developed by @len-sprague (core functionality and s
 1. Clone and enter the repo:
 
 ```
-git clone https://github.com/fsame/plew-map.git
-cd plew-map
+git clone https://github.com/len-sprague/maplew.git
+cd maplew
 ```
 
 2. Install Hugo Extended ([releases](https://github.com/gohugoio/hugo/releases), or `brew install hugo` / `winget install Hugo.Hugo.Extended`).
@@ -28,6 +28,77 @@ hugo server
 You can also open `plew-map.html` directly in a browser. Use **Demo: atlas map** or **Demo: TOEIC scatter** for an instant example, or drop a CSV + image (+ audio) onto the page. Example corpora (local use): http://localhost:1313/examples/
 
 Day-to-day use: `README-plew-map.md`. Where the corpora come from: `DATA-SOURCES.md`.
+
+## How it works
+
+You give Maplew a table and, if you have one, a picture. It places one point per row on the picture, lets you style and explore the points, and saves the result. Everything runs in your browser; no file is uploaded.
+
+```mermaid
+flowchart LR
+    A["1. Bring your files<br/>table, picture, media"] --> B["2. Pick X and Y<br/>Step 1 in the sidebar"]
+    B --> C["3. Calibrate<br/>Step 2: match data to picture"]
+    C --> D["4. Style the points<br/>Step 3: colour, size, shape"]
+    D --> E["5. Explore and edit<br/>click, compare, move"]
+    E --> F["6. Save and share<br/>CSV, setup JSON, PNG"]
+```
+
+Sidebar sections appear as each step becomes possible: a table unlocks Step 1, a background unlocks Step 2, and a valid calibration unlocks everything else.
+
+The step-by-step version of this picture, with a table of which file does what and what each save button keeps, is on the **How it works** page: open [`how-it-works.html`](how-it-works.html) in a browser, or go to `/how-it-works/` on the site.
+
+### For maintainers
+
+`plew-map.html` is one file with one state object (`S`) and one redraw function (`renderAll()`). Almost every control writes to `S` and then redraws.
+
+```mermaid
+flowchart LR
+    subgraph IN["Inputs"]
+        drop["Drop zone and pickers"]
+        demo["Demo buttons"]
+        ex["Example page<br/>manifest + setup"]
+    end
+    subgraph INTAKE["Intake"]
+        hf["handleFiles<br/>sort by file ending"]
+        ing["ingestCSV<br/>parse, pull out calibration row"]
+        cls["classifyColumns<br/>role, numeric, unique values"]
+        cal["applyCalibration"]
+    end
+    S[("State S<br/>table, position, look,<br/>background, view, edits")]
+    R["renderAll()"]
+    subgraph OUT["Outputs"]
+        svg["Points on the map"]
+        leg["Legend and filters"]
+        rec["Record window<br/>media, transcripts"]
+        exp["Exports<br/>CSV, setup, PNG"]
+    end
+    drop --> hf
+    ex --> hf
+    demo --> ing
+    hf --> ing --> cls --> S
+    hf --> cal --> S
+    S --> R
+    R --> svg
+    R --> leg
+    svg -- "click" --> rec
+    leg -- "filter, recolour" --> S
+    rec -- "edit, undo" --> S
+    S --> exp
+```
+
+The How it works page has a clickable version of this map, a table of which action triggers which handler, and notes on the parts that are easy to miss. Measured slow spots, reproducible bugs and streamlining ideas are in [`REVIEW-FINDINGS.md`](REVIEW-FINDINGS.md).
+
+## Which document do I need?
+
+| I want to… | Read |
+|------------|------|
+| Understand what the tool does with my files | [`how-it-works.html`](how-it-works.html) (site: `/how-it-works/`) |
+| Look up a specific control or option | [`README-plew-map.md`](README-plew-map.md) (site: `/user-guide/`) |
+| Practise on ready-made files with known calibration values | [`TESTDATA-README.md`](TESTDATA-README.md) |
+| Publish my own dataset as an example page | [Sharing your own example dataset](#sharing-your-own-example-dataset) below |
+| Cite or re-download the example corpora | [`DATA-SOURCES.md`](DATA-SOURCES.md) |
+| See what changed between versions | [`CHANGELOG.md`](CHANGELOG.md) |
+| Find known slow spots and bugs before changing the code | [`REVIEW-FINDINGS.md`](REVIEW-FINDINGS.md) |
+| Add plew-map to the PLeW site (one-time, historical) | [`plew-map-integration-guide.md`](plew-map-integration-guide.md) |
 
 ## Example data
 

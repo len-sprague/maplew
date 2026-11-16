@@ -28,6 +28,7 @@ body { font-family:'Segoe UI', system-ui, sans-serif; background:#0f1419; color:
 <div class="page-header">
   <a class="back-link" href="{{ .Site.Home.RelPermalink }}">← Editor</a>
   <h1>User guide</h1>
+  <p style="margin-top:8px;"><a href="{{ "how-it-works/" | relURL }}" style="color:#4ecdc4;text-decoration:none;font-size:13px;">New here? See how it works, step by step →</a></p>
 </div>
 <div class="wrap">
 {{ readFile "README-plew-map.md" | markdownify }}

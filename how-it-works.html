@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How Maplew works</title>
+<style>
+/* Layout: one reading column; diagrams are rows of boxes that wrap and stack on narrow screens.
+   Palette and type follow plew-map.html so the page reads as part of the same tool. */
+:root {
+  color-scheme: dark;
+  --bg:#0f1419; --panel:#1a1f26; --panel-2:#161b21; --line:#2d3640;
+  --fg:#e8e8e8; --fg-2:#cfd6dd; --muted:#8a949e;
+  --accent:#4ecdc4; --accent-soft:#1f4a47; --accent-ink:#8fe8e1;
+  --warn:#ffd93d; --warn-bg:#3a2f14; --warn-line:#6b5a1e;
+  --yes:#7fe8c0; --no:#6b7680;
+  --sans:'Segoe UI', system-ui, -apple-system, sans-serif;
+  --mono:ui-monospace, 'Cascadia Mono', Consolas, Menlo, monospace;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:var(--sans); background:var(--bg); color:var(--fg); line-height:1.6; }
+a { color:var(--accent); }
+a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+code { font-family:var(--mono); font-size:0.88em; background:var(--panel); padding:1px 5px; border-radius:4px; overflow-wrap:anywhere; }
+
+.page-header { background:var(--panel); border-bottom:1px solid var(--line); padding-block:28px; }
+.page-header .inner, .wrap { max-width:980px; margin:0 auto; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); }
+.nav { display:flex; flex-wrap:wrap; gap:6px 18px; margin-bottom:14px; font-size:13px; }
+.nav a { text-decoration:none; }
+.page-header h1 { font-size:26px; line-height:1.25; margin-bottom:8px; text-wrap:balance; }
+.page-header p { color:var(--muted); font-size:14px; max-width:68ch; }
+.jump { display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; }
+.jump a { font-size:12px; text-decoration:none; border:1px solid var(--line); border-radius:999px; padding:4px 12px; color:var(--fg-2); background:var(--panel-2); }
+.jump a:hover { border-color:var(--accent); color:var(--accent); }
+
+.wrap { padding-block:36px 80px; display:flex; flex-direction:column; gap:44px; }
+section { display:flex; flex-direction:column; gap:14px; min-width:0; }
+.part-label { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.09em; color:var(--accent); }
+h2 { font-size:1.35rem; line-height:1.3; text-wrap:balance; }
+h3 { font-size:1.02rem; color:var(--accent-ink); margin-top:6px; }
+p, li { color:var(--fg-2); font-size:0.93rem; max-width:72ch; }
+ul, ol { padding-left:1.3em; display:flex; flex-direction:column; gap:4px; }
+.lead { font-size:1rem; color:var(--fg); }
+.note { background:var(--warn-bg); border:1px solid var(--warn-line); color:var(--warn); border-radius:8px; padding:10px 14px; font-size:0.86rem; max-width:none; }
+.note code { background:rgba(0,0,0,0.25); }
+hr.part { border:none; border-top:1px solid var(--line); }
+
+/* ── Stepper (the data's journey) ── */
+.steps { display:grid; grid-template-columns:repeat(6, minmax(0,1fr)); gap:8px; list-style:none; padding:0; counter-reset:step; }
+.steps li { max-width:none; min-width:0; }
+.step-btn { width:100%; height:100%; text-align:left; font:inherit; color:var(--fg-2); background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:10px 12px; cursor:pointer; display:flex; flex-direction:column; gap:3px; position:relative; }
+.step-btn::before { counter-increment:step; content:counter(step); font-size:0.7rem; font-weight:700; color:var(--accent); background:var(--accent-soft); width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+.step-btn strong { font-size:0.86rem; color:var(--fg); line-height:1.25; }
+.step-btn span { font-size:0.72rem; color:var(--muted); line-height:1.35; }
+.step-btn:hover { border-color:var(--accent); }
+.step-btn[aria-selected="true"] { border-color:var(--accent); background:#1b2a2c; }
+.step-panels { border:1px solid var(--line); border-radius:12px; background:var(--panel-2); }
+.step-panel { padding:18px 20px; display:flex; flex-direction:column; gap:12px; }
+.step-panel + .step-panel { border-top:1px solid var(--line); }
+.js .step-panel { display:none; border-top:none; }
+.js .step-panel.active { display:flex; }
+.step-panel h3 { margin:0; }
+.cols3 { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:14px; }
+.cols3 > div { min-width:0; display:flex; flex-direction:column; gap:6px; }
+.cols3 h4 { font-size:0.68rem; text-transform:uppercase; letter-spacing:0.07em; color:var(--muted); }
+.cols3 li, .cols3 p { font-size:0.86rem; }
+
+/* ── Gate diagram (what unlocks what) ── */
+.gates { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px; }
+.gate { border:1px solid var(--line); border-radius:10px; background:var(--panel); padding:14px; display:flex; flex-direction:column; gap:8px; min-width:0; }
+.gate .when { font-size:0.7rem; text-transform:uppercase; letter-spacing:0.07em; color:var(--accent); font-weight:700; }
+.gate .cond { font-size:0.95rem; color:var(--fg); font-weight:600; }
+.chips { display:flex; flex-wrap:wrap; gap:6px; }
+.chip { font-size:0.74rem; border:1px solid var(--line); background:var(--panel-2); border-radius:999px; padding:2px 10px; color:var(--fg-2); }
+
+/* ── Tables ── */
+.table-scroll { overflow-x:auto; border:1px solid var(--line); border-radius:10px; }
+table { width:100%; border-collapse:collapse; font-size:0.84rem; min-width:560px; }
+th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top; color:var(--fg-2); }
+tr:last-child td { border-bottom:none; }
+th { background:var(--panel); color:var(--muted); font-weight:600; font-size:0.74rem; text-transform:uppercase; letter-spacing:0.05em; white-space:nowrap; }
+td:first-child { color:var(--fg); }
+.yes { color:var(--yes); font-weight:600; }
+.no { color:var(--no); }
+.part-of { color:var(--warn); }
+
+/* ── Order list (calibration sources) ── */
+.order { list-style:none; padding:0; display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:8px; counter-reset:ord; }
+.order li { max-width:none; border:1px solid var(--line); border-radius:10px; background:var(--panel); padding:12px; font-size:0.84rem; display:flex; flex-direction:column; gap:4px; min-width:0; }
+.order li::before { counter-increment:ord; content:"Applied " counter(ord, decimal); font-size:0.68rem; text-transform:uppercase; letter-spacing:0.07em; color:var(--accent); font-weight:700; }
+.order li.fallback::before { content:"If none of these"; color:var(--muted); }
+.order strong { color:var(--fg); font-size:0.9rem; }
+
+/* ── Internals map ── */
+.map { display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:10px; align-items:start; }
+.lane { border:1px solid var(--line); border-radius:10px; background:var(--panel-2); padding:10px; display:flex; flex-direction:column; gap:6px; min-width:0; position:relative; }
+.lane h3 { margin:0 0 2px; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); }
+.lane:not(:last-child)::after { content:"\25B8"; position:absolute; right:-10px; top:14px; color:var(--accent); font-size:12px; width:10px; text-align:center; }
+.node { font:inherit; text-align:left; width:100%; border:1px solid var(--line); background:var(--panel); color:var(--fg); border-radius:8px; padding:7px 9px; cursor:pointer; display:flex; flex-direction:column; gap:1px; min-width:0; }
+.node b { font-size:0.8rem; font-weight:600; overflow-wrap:anywhere; }
+.node small { font-size:0.68rem; color:var(--muted); font-family:var(--mono); overflow-wrap:anywhere; }
+.node:hover { border-color:var(--accent); }
+.node[aria-pressed="true"] { border-color:var(--accent); background:#1b2a2c; }
+.node.hub { border-color:#2e6e69; background:var(--accent-soft); }
+.node.hub b { color:var(--accent-ink); }
+.node-detail { border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:8px; background:var(--panel); padding:14px 16px; display:flex; flex-direction:column; gap:6px; min-height:96px; }
+.node-detail h3 { margin:0; }
+.node-detail p { font-size:0.88rem; max-width:none; }
+.node-detail .fn { font-family:var(--mono); font-size:0.76rem; color:var(--muted); overflow-wrap:anywhere; }
+.loop { font-size:0.86rem; color:var(--muted); border:1px dashed var(--line); border-radius:8px; padding:8px 12px; max-width:none; }
+.loop b { color:var(--accent-ink); }
+
+@media (max-width:860px){
+  .steps { grid-template-columns:repeat(3, minmax(0,1fr)); }
+  .order { grid-template-columns:repeat(2, minmax(0,1fr)); }
+  .map { grid-template-columns:repeat(2, minmax(0,1fr)); }
+  .lane::after { display:none; }
+}
+@media (max-width:560px){
+  .steps, .order, .gates, .cols3, .map { grid-template-columns:minmax(0,1fr); }
+}
+@media (prefers-reduced-motion:no-preference){
+  .step-btn, .node { transition:border-color 0.15s, background 0.15s; }
+}
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="inner">
+    <nav class="nav" aria-label="Site">
+      <a id="navEditor" href="plew-map.html">← Editor</a>
+      <a id="navGuide" href="README-plew-map.md">User guide</a>
+      <a id="navExamples" href="#" hidden>Example datasets</a>
+    </nav>
+    <h1>How Maplew works</h1>
+    <p>Maplew (the file is called <code>plew-map.html</code>) plots the rows of a table as points on a picture. This page shows what happens to your files from the moment you drop them to the moment you share the result. The first half needs no coding knowledge. The second half is a map of the internals for people who maintain or extend the tool.</p>
+    <div class="jump">
+      <a href="#journey">Your data's journey</a>
+      <a href="#files">Which file does what</a>
+      <a href="#unlock">What unlocks what</a>
+      <a href="#saving">What each save keeps</a>
+      <a href="#calibration">Where calibration comes from</a>
+      <a href="#internals">Under the hood</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ═════════════ PART 1 ═════════════ -->
+<section id="journey">
+  <div class="part-label">Part 1 · For everyone</div>
+  <h2>Your data's journey, in six steps</h2>
+  <p class="lead">Everything happens inside your browser. Your files are never uploaded anywhere; closing the tab discards them.</p>
+
+  <ol class="steps" role="tablist" aria-label="Steps">
+    <li><button class="step-btn" role="tab" aria-selected="true" aria-controls="step-1" id="tab-1"><strong>Bring your files</strong><span>Table, picture, media</span></button></li>
+    <li><button class="step-btn" role="tab" aria-selected="false" aria-controls="step-2" id="tab-2"><strong>Pick X and Y</strong><span>Sidebar: Step 1</span></button></li>
+    <li><button class="step-btn" role="tab" aria-selected="false" aria-controls="step-3" id="tab-3"><strong>Calibrate</strong><span>Sidebar: Step 2</span></button></li>
+    <li><button class="step-btn" role="tab" aria-selected="false" aria-controls="step-4" id="tab-4"><strong>Style the points</strong><span>Sidebar: Step 3</span></button></li>
+    <li><button class="step-btn" role="tab" aria-selected="false" aria-controls="step-5" id="tab-5"><strong>Explore and edit</strong><span>Click, compare, move</span></button></li>
+    <li><button class="step-btn" role="tab" aria-selected="false" aria-controls="step-6" id="tab-6"><strong>Save and share</strong><span>CSV, PNG, setup</span></button></li>
+  </ol>
+
+  <div class="step-panels">
+    <div class="step-panel active" id="step-1" role="tabpanel" aria-labelledby="tab-1">
+      <h3>1 · Bring your files</h3>
+      <p>Drop everything at once onto the drop zone or the main area: your table, a background picture if you have one, and any audio, video, images or transcripts the table mentions. No picture? Press <b>No background</b> for a blank plot frame.</p>
+      <div class="cols3">
+        <div><h4>You do</h4><ul><li>Drop a <code>.csv</code>, <code>.tsv</code> or <code>.json</code> table.</li><li>Optionally drop a map or figure image.</li><li>Optionally drop media files named in the table.</li></ul></div>
+        <div><h4>Maplew does</h4><ul><li>Sorts files by their ending (see <a href="#files">the table below</a>).</li><li>Reads the header row and decides what each column is for.</li><li>Treats an image as the background unless a table cell names it.</li></ul></div>
+        <div><h4>Good to know</h4><ul><li>Label columns with <code>loc::</code>, <code>dim::</code>, <code>med::</code>, <code>desc::</code> for reliable results.</li><li>Write decimals with a point (<code>46.5</code>), not a comma.</li><li>A status line under the drop zone lists what was found and what is missing.</li></ul></div>
+      </div>
+    </div>
+
+    <div class="step-panel" id="step-2" role="tabpanel" aria-labelledby="tab-2">
+      <h3>2 · Pick X and Y (Location columns)</h3>
+      <p>Two columns decide where each row sits. Maplew guesses them for you and you can change the guess.</p>
+      <div class="cols3">
+        <div><h4>You do</h4><ul><li>Check the X and Y dropdowns.</li><li>Tick <b>Web Mercator</b> only if the background is a screenshot of a web map (Google Maps, OpenStreetMap).</li></ul></div>
+        <div><h4>Maplew does</h4><ul><li>Guesses in this order: <code>loc::</code> columns, then names like lon/lat or x/y, then the first two numeric columns.</li><li>Counts rows whose coordinates are not numbers and tells you how many will be skipped.</li></ul></div>
+        <div><h4>Good to know</h4><ul><li>X and Y need not be geography. Any two numeric columns make a scatter plot.</li><li>After changing X or Y, press <b>Reset to defaults</b> in the next step so the edge values are guessed again for the new columns.</li></ul></div>
+      </div>
+    </div>
+
+    <div class="step-panel" id="step-3" role="tabpanel" aria-labelledby="tab-3">
+      <h3>3 · Calibrate</h3>
+      <p>Calibration tells Maplew which data value sits where on the picture. Without it, points still appear but are only stretched to fill the frame.</p>
+      <div class="cols3">
+        <div><h4>You do, one of</h4><ul><li><b>Image edges:</b> type the data value at the left, right, top and bottom edge.</li><li><b>Three-point:</b> click three places on the picture and type their coordinates. Handles tilted or scanned maps.</li><li><b>Pixels:</b> nothing; the table already holds pixel positions.</li></ul></div>
+        <div><h4>Maplew does</h4><ul><li>Prefills the edges from your data's range so something shows at once.</li><li>Marks that prefill in yellow as approximate until you replace it.</li><li>Redraws on every change.</li></ul></div>
+        <div><h4>Good to know</h4><ul><li>With <b>No background</b> the prefill is all you need.</li><li>You may never need to type anything: a saved CSV, a sidecar file or a setup file can <a href="#calibration">carry the calibration</a>.</li><li>Loaded a different table and see no points? Press <b>Reset to defaults</b>.</li></ul></div>
+      </div>
+    </div>
+
+    <div class="step-panel" id="step-4" role="tabpanel" aria-labelledby="tab-4">
+      <h3>4 · Style the points (Encodings)</h3>
+      <p>Choose which columns drive colour, size and shape. The legend is built from those choices and doubles as a control panel.</p>
+      <div class="cols3">
+        <div><h4>You do</h4><ul><li>Pick a column for <b>Color</b>, <b>Size</b> and <b>Shape</b>, or leave any at "none".</li><li>For numeric columns choose continuous (a gradient) or categorical (one colour per value).</li><li>Adjust sliders and toggles under <b>Display</b>.</li></ul></div>
+        <div><h4>Maplew does</h4><ul><li>Proposes a first colour and shape column.</li><li>Builds filter chips for every categorical choice.</li><li>Mirrors the legend onto the map so it stays visible with the sidebar closed.</li></ul></div>
+        <div><h4>Good to know</h4><ul><li>Click a legend entry to hide or show that category.</li><li>Each legend row has its own colour, size or shape override.</li><li>Shape has 8 symbols and only suits categories.</li></ul></div>
+      </div>
+    </div>
+
+    <div class="step-panel" id="step-5" role="tabpanel" aria-labelledby="tab-5">
+      <h3>5 · Explore and edit</h3>
+      <p>Hover a point for a summary. Click it for the full record with its media. Scroll to zoom and drag to pan.</p>
+      <div class="cols3">
+        <div><h4>You do</h4><ul><li><b>Click:</b> open the record.</li><li><b>Shift+click:</b> edit it.</li><li><b>Alt+click</b> a second point: compare side by side.</li><li><b>Ctrl/Cmd+click:</b> mark it.</li><li>Under <b>Edit positions</b>: drag points or click the map to add one.</li></ul></div>
+        <div><h4>Maplew does</h4><ul><li>Plays audio and video, shows images, embeds YouTube links.</li><li>Shows ELAN and Praat transcripts in step with the audio.</li><li>Records every move, edit, add and delete so you can undo it.</li></ul></div>
+        <div><h4>Good to know</h4><ul><li>Zooming and panning never change your data.</li><li><b>Spread stacked points</b> separates rows that share one location, on screen only.</li><li>Edits live in the browser until you save. Leaving the page asks first.</li></ul></div>
+      </div>
+    </div>
+
+    <div class="step-panel" id="step-6" role="tabpanel" aria-labelledby="tab-6">
+      <h3>6 · Save and share</h3>
+      <p>Three buttons, three different things. Most people want the first two together.</p>
+      <div class="cols3">
+        <div><h4>You do</h4><ul><li><b>Save to CSV:</b> your table, with edits and calibration.</li><li><b>Export setup:</b> the look of the plot, as a small JSON file.</li><li><b>Snapshot PNG:</b> a picture of the plot for a paper or slide.</li></ul></div>
+        <div><h4>Maplew does</h4><ul><li>Adds one reserved row to the CSV holding the calibration.</li><li>Writes column roles into the CSV headers as prefixes.</li><li>Draws the snapshot at the background image's full resolution.</li></ul></div>
+        <div><h4>Good to know</h4><ul><li>The background image and media are never inside the CSV or setup file. Send them alongside.</li><li>Load a setup file with <b>Import setup</b>, not by dropping it on the drop zone.</li><li>See <a href="#saving">what each save keeps</a>.</li></ul></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="files">
+  <h2>Which file does what</h2>
+  <p>Maplew decides by the file's ending, then by whether the table mentions the file's name.</p>
+  <div class="table-scroll"><table>
+    <thead><tr><th>You drop</th><th>It becomes</th><th>How it is matched</th></tr></thead>
+    <tbody>
+      <tr><td><code>.csv</code> <code>.tsv</code></td><td>The table. One row is one point.</td><td>Comma, tab or semicolon separated; detected automatically. If you drop several, the one with <code>loc::</code> columns wins.</td></tr>
+      <tr><td><code>.json</code> <code>.jsonl</code> <code>.ndjson</code></td><td>The table.</td><td>A list of records, or one record per line.</td></tr>
+      <tr><td><code>.png</code> <code>.jpg</code> <code>.gif</code> <code>.webp</code> <code>.svg</code></td><td>The background, or a picture shown in a record.</td><td>Background if no table cell contains its filename. Otherwise it belongs to the record that names it.</td></tr>
+      <tr><td><code>name.png.calib.txt</code></td><td>Calibration for <code>name.png</code>.</td><td>Same filename as the image plus <code>.calib.txt</code>. Lines <code>L:</code> <code>R:</code> <code>T:</code> <code>B:</code>.</td></tr>
+      <tr><td><code>.wav</code> <code>.mp3</code> <code>.flac</code> <code>.ogg</code> <code>.m4a</code> <code>.mp4</code> <code>.webm</code> <code>.mov</code></td><td>Audio or video in a record.</td><td>By filename, from a <code>med::</code> column. Folders in the cell are ignored.</td></tr>
+      <tr><td><code>.eaf</code> <code>.TextGrid</code></td><td>A transcript under the audio player.</td><td>Named in a media column, or same base name as the file in <code>med::audio</code>.</td></tr>
+      <tr><td>Setup <code>.json</code></td><td>The saved look of a plot.</td><td>Only through the <b>Import setup</b> button.</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">A setup file dropped on the drop zone is read as a table, because both end in <code>.json</code>. Use <b>Import setup</b> for it.</p>
+
+  <h3>Column labels</h3>
+  <div class="table-scroll"><table>
+    <thead><tr><th>Header starts with</th><th>Meaning</th><th>Where it shows up</th></tr></thead>
+    <tbody>
+      <tr><td><code>loc::</code></td><td>A coordinate</td><td>X and Y dropdowns</td></tr>
+      <tr><td><code>dim::</code></td><td>Something to colour, size or shape by</td><td>Top of the encoding dropdowns, tooltip, record</td></tr>
+      <tr><td><code>med::</code></td><td>A media file name or link</td><td>Player in the record window</td></tr>
+      <tr><td><code>desc::</code></td><td>Longer text</td><td>Record window only</td></tr>
+      <tr><td><code>res::</code></td><td>Bookkeeping</td><td>Hidden everywhere, kept in the saved CSV</td></tr>
+      <tr><td>no prefix</td><td>Guessed from the name</td><td>Change it any time under <b>Column roles</b></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="unlock">
+  <h2>What unlocks what</h2>
+  <p>Sidebar sections appear as soon as they can do something. If a section is missing, the box to its left has not been satisfied yet.</p>
+  <div class="gates">
+    <div class="gate"><span class="when">First</span><span class="cond">A table is loaded</span><div class="chips"><span class="chip">Location columns</span><span class="chip">Column roles</span><span class="chip">Edits</span></div></div>
+    <div class="gate"><span class="when">Then</span><span class="cond">A background is set</span><div class="chips"><span class="chip">Calibration</span><span class="chip">Background map</span><span class="chip">The plot area</span></div></div>
+    <div class="gate"><span class="when">Finally</span><span class="cond">Calibration is valid</span><div class="chips"><span class="chip">Encodings</span><span class="chip">Display</span><span class="chip">Legend</span><span class="chip">Edit positions</span><span class="chip">Export</span></div></div>
+  </div>
+  <p><b>Explore speaker</b> (inside Encodings) appears only when a column is named <code>speaker</code> or <code>speaker_id</code>. <b>Background map</b> lists the background images you dropped; with more than one you can switch between them.</p>
+</section>
+
+<section id="saving">
+  <h2>What each save keeps</h2>
+  <div class="table-scroll"><table>
+    <thead><tr><th>What you made</th><th>Save to CSV</th><th>Export setup</th><th>Snapshot PNG</th></tr></thead>
+    <tbody>
+      <tr><td>Table values, including moved, added and edited points</td><td class="yes">Yes</td><td class="no">No</td><td class="part-of">As drawn</td></tr>
+      <tr><td>Column roles</td><td class="yes">Yes, as header prefixes</td><td class="yes">Yes</td><td class="no">No</td></tr>
+      <tr><td>Calibration, X and Y columns, Mercator</td><td class="yes">Yes, in one reserved row</td><td class="yes">Yes</td><td class="no">No</td></tr>
+      <tr><td>Colour, size and shape choices; filters</td><td class="no">No</td><td class="yes">Yes</td><td class="part-of">As drawn</td></tr>
+      <tr><td>Point size, opacity and other Display toggles</td><td class="no">No</td><td class="yes">Yes</td><td class="part-of">As drawn</td></tr>
+      <tr><td>Title and axis labels</td><td class="no">No</td><td class="yes">Yes</td><td class="part-of">Your choice</td></tr>
+      <tr><td>Background image</td><td class="no">No</td><td class="no">Only which basemap was active</td><td class="yes">Yes</td></tr>
+      <tr><td>Audio, video, record images</td><td class="no">No</td><td class="no">No</td><td class="no">No</td></tr>
+      <tr><td>Zoom and pan position</td><td class="no">No</td><td class="no">No</td><td class="no">No, always the whole image</td></tr>
+    </tbody>
+  </table></div>
+  <p>Two smaller saves: <b>Change log</b> (Edits section) downloads the list of edits you made, and <b>Download ELAN / TextGrid</b> (in a record) saves corrections typed into a transcript. Neither is included in the three above.</p>
+  <p class="note">To hand a complete plot to someone else, send four things: the saved CSV, the setup JSON, the background image and the media files.</p>
+</section>
+
+<section id="calibration">
+  <h2>Where calibration comes from</h2>
+  <p>Calibration can travel with your files in three ways. When more than one is present they are applied in this order, so the later one wins.</p>
+  <ol class="order">
+    <li><strong>Reserved CSV row</strong>A row starting <code>__PLEWMAP_CALIB__</code>, written by <b>Save to CSV</b>. Read when the table loads.</li>
+    <li><strong>Sidecar file</strong><code>image.png.calib.txt</code> next to a background. Sets the four edge values when that image is shown, and again each time you switch basemap.</li>
+    <li><strong>Setup JSON</strong>Applied last, by <b>Import setup</b> or automatically on an example page.</li>
+    <li class="fallback"><strong>Prefill</strong>Edges guessed from your data's range plus 6%. Shown in yellow as approximate.</li>
+  </ol>
+  <p>Anything you type afterwards overrides all of them. <b>Reset to defaults</b> returns to the prefill.</p>
+</section>
+
+<hr class="part">
+
+<!-- ═════════════ PART 2 ═════════════ -->
+<section id="internals">
+  <div class="part-label">Part 2 · For maintainers</div>
+  <h2>Under the hood</h2>
+  <p class="lead">One HTML file, one global state object <code>S</code>, one redraw function <code>renderAll()</code>. Almost every control follows the same loop.</p>
+  <p class="loop"><b>The loop:</b> a control fires its handler → the handler writes to <code>S</code> (or leaves a value in the DOM) → the handler calls <code>renderAll()</code> → the SVG overlay, both legends, the filter chips and the sidebar's visible sections are rebuilt from <code>S</code>.</p>
+  <p>Select any box for what it does and which functions to read. Function names match the source; the source is grouped under banner comments with the same headings.</p>
+
+  <div class="map" id="map">
+    <div class="lane">
+      <h3>1 · Inputs</h3>
+      <button class="node" data-k="drop" aria-pressed="false"><b>Drop zone and pickers</b><small>handleFiles</small></button>
+      <button class="node" data-k="demo" aria-pressed="false"><b>Demo buttons</b><small>loadDemoALI · loadDemoTOEIC</small></button>
+      <button class="node" data-k="remote" aria-pressed="false"><b>Example page</b><small>loadRemoteExample</small></button>
+      <button class="node" data-k="setup" aria-pressed="false"><b>Setup JSON</b><small>applyVisualizationConfig</small></button>
+    </div>
+    <div class="lane">
+      <h3>2 · Intake</h3>
+      <button class="node" data-k="parse" aria-pressed="false"><b>Parse the table</b><small>ingestCSV · parseCSV · parseJSON</small></button>
+      <button class="node" data-k="classify" aria-pressed="false"><b>Classify columns</b><small>classifyColumns</small></button>
+      <button class="node" data-k="guess" aria-pressed="false"><b>First guesses</b><small>guessLocColumns · autoAssignEncodings</small></button>
+      <button class="node" data-k="basemap" aria-pressed="false"><b>Load background</b><small>activateBasemap · setBackground</small></button>
+      <button class="node" data-k="calib" aria-pressed="false"><b>Calibrate</b><small>applyCalibration · solveAffine</small></button>
+    </div>
+    <div class="lane">
+      <h3>3 · State <code>S</code></h3>
+      <button class="node" data-k="s-table" aria-pressed="false"><b>Table</b><small>headers · data · cols</small></button>
+      <button class="node" data-k="s-pos" aria-pressed="false"><b>Position</b><small>locX · locY · mercator · calib</small></button>
+      <button class="node" data-k="s-look" aria-pressed="false"><b>Look</b><small>enc · filters · speakerFilter</small></button>
+      <button class="node" data-k="s-bg" aria-pressed="false"><b>Background and media</b><small>basemaps · media · alignFiles</small></button>
+      <button class="node" data-k="s-view" aria-pressed="false"><b>View</b><small>view · labels · stagePreset</small></button>
+      <button class="node" data-k="s-edit" aria-pressed="false"><b>Edit history</b><small>undoStack · changeLog · compare</small></button>
+    </div>
+    <div class="lane">
+      <h3>4 · Redraw</h3>
+      <button class="node hub" data-k="render" aria-pressed="true"><b>renderAll()</b><small>the single redraw path</small></button>
+      <button class="node" data-k="project" aria-pressed="false"><b>Data → pixels</b><small>dataToPixel · projY</small></button>
+      <button class="node" data-k="visual" aria-pressed="false"><b>Value → visual</b><small>colorFor · sizeFor · shapeFor</small></button>
+      <button class="node" data-k="visible" aria-pressed="false"><b>Which rows show</b><small>rowVisible · buildStackInfo</small></button>
+      <button class="node" data-k="panels" aria-pressed="false"><b>Side panels</b><small>renderLegend · renderFilters</small></button>
+    </div>
+    <div class="lane">
+      <h3>5 · Outputs</h3>
+      <button class="node" data-k="o-svg" aria-pressed="false"><b>Points on the map</b><small>#overlay (SVG)</small></button>
+      <button class="node" data-k="o-modal" aria-pressed="false"><b>Record window</b><small>openModal · openRecordEditor</small></button>
+      <button class="node" data-k="o-align" aria-pressed="false"><b>Transcript viewer</b><small>fillAlignViewer · parseEAF</small></button>
+      <button class="node" data-k="o-export" aria-pressed="false"><b>Exports</b><small>downloadCSV · downloadSnapshot</small></button>
+    </div>
+  </div>
+  <div class="node-detail" id="nodeDetail" aria-live="polite"></div>
+
+  <h3>What triggers what</h3>
+  <p>Read a row as: this action calls this handler, which changes this part of the state, and then this much is redrawn.</p>
+  <div class="table-scroll"><table>
+    <thead><tr><th>Action</th><th>Handler</th><th>State it changes</th><th>Redraw</th></tr></thead>
+    <tbody>
+      <tr><td>Drop files</td><td><code>handleFiles</code> → <code>ingestCSV</code></td><td>Everything is reset, then <code>headers</code>, <code>data</code>, <code>cols</code>, <code>basemaps</code>, <code>media</code>, <code>alignFiles</code></td><td>Full, several times</td></tr>
+      <tr><td>Change X, Y or Mercator</td><td><code>onLocChange</code></td><td><code>locX</code>, <code>locY</code>, <code>mercator</code>, <code>skipped</code></td><td>Full, twice</td></tr>
+      <tr><td>Type an edge value</td><td><code>edgeEdited</code> → <code>applyCalibration</code></td><td><code>calib.edges</code>, <code>calib.valid</code>, <code>calib.prefilled</code></td><td>Full</td></tr>
+      <tr><td>Place a three-point marker</td><td>click on <code>#overlay</code></td><td><code>calib.pts</code>, <code>calib.affine</code></td><td>Full</td></tr>
+      <tr><td>Switch basemap</td><td><code>switchBasemap</code> → <code>activateBasemap</code></td><td>Saves edges on the old basemap; <code>activeBasemapId</code>, <code>imgW</code>, <code>imgH</code>; applies the new one's edges</td><td>Full, after the image loads</td></tr>
+      <tr><td>Pick Color, Size or Shape</td><td><code>onEncChange</code> → <code>syncEncControls</code></td><td><code>enc</code>; prunes <code>filters</code></td><td>Full</td></tr>
+      <tr><td>Tick a filter chip or click a legend entry</td><td><code>setFilter</code>, <code>toggleFilter</code></td><td><code>filters[col][value]</code></td><td>Full</td></tr>
+      <tr><td>Legend colour, size or shape override</td><td><code>setCatColor</code>, <code>setCatSize</code>, <code>setCatShape</code></td><td><code>enc.color.catColors</code>, <code>enc.size.catSizes</code>, <code>enc.shape.catShapes</code></td><td>Full</td></tr>
+      <tr><td>Move a Display slider or toggle</td><td><code>onDisplayChange</code></td><td>Nothing in <code>S</code>; the value stays in the control</td><td>Full</td></tr>
+      <tr><td>Scroll to zoom, or + and −</td><td><code>mapZoomBy</code></td><td><code>view</code></td><td>CSS transform; plus a full redraw on the next frame unless "Marker size follows map zoom" is on</td></tr>
+      <tr><td>Drag the map</td><td><code>initMapNavigation</code></td><td><code>view.tx</code>, <code>view.ty</code></td><td>CSS transform only</td></tr>
+      <tr><td>Click a point</td><td><code>onPointClick</code> → <code>openModal</code></td><td><code>compare.a</code></td><td>Full</td></tr>
+      <tr><td>Alt+click, Ctrl/Cmd+click</td><td><code>onPointClick</code></td><td><code>compare.b</code>, <code>marked</code></td><td>Full</td></tr>
+      <tr><td>Shift+click, then Save</td><td><code>openRecordEditor</code> → <code>saveRecordEditor</code></td><td>The row; <code>undoStack</code>, <code>changeLog</code>; then <code>classifyColumns</code></td><td>Full, three times</td></tr>
+      <tr><td>Drag a point</td><td><code>startPointDrag</code></td><td>The row's X and Y while dragging; one undo entry on release</td><td>That element only while dragging; full on release</td></tr>
+      <tr><td>Click the map in add mode</td><td>click on <code>#overlay</code> → <code>createBlankRow</code></td><td>Appends a row, opens the editor</td><td>Full</td></tr>
+      <tr><td>Undo, Redo, Reset all</td><td><code>undo</code>, <code>redo</code>, <code>resetAllChanges</code></td><td><code>data</code>, both stacks; then <code>classifyColumns</code></td><td>Full</td></tr>
+      <tr><td>Change a column's role</td><td><code>setColumnRole</code></td><td><code>roleOverrides</code>; then <code>classifyColumns</code> and both sets of dropdowns</td><td>Full, three times</td></tr>
+      <tr><td>Save to CSV, Export setup, Snapshot PNG</td><td><code>downloadCSV</code>, <code>downloadVisualizationConfig</code>, <code>downloadSnapshot</code></td><td>Read only</td><td>None</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Things that are easy to miss</h3>
+  <ul>
+    <li><b>Display settings are not in <code>S</code>.</b> Point size, opacity, outline, ring, graticule, jitter, drag and add modes are read from their checkboxes and sliders during each redraw. <code>displaySnapshot()</code> collects them for the setup export.</li>
+    <li><b>Column facts are cached.</b> <code>classifyColumns()</code> fills <code>S.cols[h] = { role, numeric, uniq }</code>. Anything that changes a cell or a role must call it again, which every edit path does.</li>
+    <li><b>Legend categories are more than the data.</b> <code>legendCategories(col)</code> merges the column's unique values with any value that has a custom colour, size or shape, so an override survives when its last row is filtered or edited away.</li>
+    <li><b>Zoom is a CSS transform on <code>#mapZoomWrap</code>.</b> The SVG's <code>viewBox</code> is always the image's pixel size, so point coordinates are image pixels at every zoom level.</li>
+    <li><b>Two transforms, both invertible.</b> <code>dataToPixel()</code> draws; <code>pixelToData()</code> turns a drag or a click back into data values. Both pass Y through <code>projY()</code> / <code>invProjY()</code> when Mercator is on.</li>
+    <li><b>The Hugo site adds nothing to the app.</b> Each layout reads <code>plew-map.html</code> and inserts one <code>&lt;script&gt;</code> after <code>&lt;body&gt;</code> that sets <code>window.PLEW_HUGO</code>, and on example pages <code>window.PLEW_EXAMPLE</code> (the manifest URL) and <code>window.PLEW_SETUP</code>. The last lines of the app's script act on those.</li>
+  </ul>
+
+  <h3>How an example page loads</h3>
+  <div class="table-scroll"><table>
+    <thead><tr><th>Step</th><th>Where</th><th>What happens</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><code>content/examples/&lt;name&gt;.md</code></td><td>Front matter names a <code>manifest</code> and optionally a <code>setup</code>.</td></tr>
+      <tr><td>2</td><td><code>layouts/_default/example-map.html</code></td><td>Hugo inlines <code>plew-map.html</code> and sets <code>PLEW_EXAMPLE</code> and <code>PLEW_SETUP</code>.</td></tr>
+      <tr><td>3</td><td><code>loadRemoteExample</code></td><td>Fetches the manifest, then every file it lists, one after another, and wraps each as a <code>File</code>.</td></tr>
+      <tr><td>4</td><td><code>handleFiles</code></td><td>The same path as a manual drop. If no image arrived, <code>useBlankFrame()</code> supplies one.</td></tr>
+      <tr><td>5</td><td><code>loadRemoteSetup</code></td><td>Fetches the setup JSON and calls <code>applyVisualizationConfig</code>.</td></tr>
+    </tbody>
+  </table></div>
+
+  <p>Measured slow spots, reproducible bugs and streamlining ideas are in <a id="findingsLink" href="https://github.com/len-sprague/maplew/blob/main/REVIEW-FINDINGS.md">REVIEW-FINDINGS.md</a>.</p>
+</section>
+
+</main>
+
+<script>
+(function(){
+  document.documentElement.classList.add('js');
+
+  // Site links: standalone defaults are in the markup; the Hugo layout supplies real URLs.
+  var nav = window.PLEW_NAV || {};
+  function setHref(id, url){ var a = document.getElementById(id); if (a && url){ a.href = url; a.hidden = false; } }
+  setHref('navEditor', nav.editor);
+  setHref('navGuide', nav.guide);
+  setHref('navExamples', nav.examples);
+
+  // Stepper
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.step-btn'));
+  function selectStep(tab, focus){
+    tabs.forEach(function(t){
+      var on = t === tab;
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute('aria-controls')).classList.toggle('active', on);
+    });
+    if (focus) tab.focus();
+  }
+  tabs.forEach(function(t, i){
+    t.addEventListener('click', function(){ selectStep(t); });
+    t.addEventListener('keydown', function(e){
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown'){ e.preventDefault(); selectStep(tabs[(i + 1) % tabs.length], true); }
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp'){ e.preventDefault(); selectStep(tabs[(i - 1 + tabs.length) % tabs.length], true); }
+    });
+  });
+  selectStep(tabs[0]);
+
+  // Internals map
+  var NODES = {
+    drop: ['Drop zone and pickers', 'Every way of handing over files ends in handleFiles(): the drop zone, the main area, "Load media files…" and the hidden file inputs. It sorts files by extension into tables, images, media, transcripts and sidecars, then processes them in that order. "Set background…" is the one exception and goes straight to setBackgroundFromFile().', 'handleFiles · pickMapCsv · csvFirstHeaders · setBackgroundFromFile · useBlankFrame'],
+    demo: ['Demo buttons', 'Each demo draws its own background on a canvas, builds a CSV as a string and feeds both through the normal path (ingestCSV, setBackground). It then sets edges and encodings directly, 60 ms later. Nothing is fetched.', 'loadDemoALI · loadDemoTOEIC · mulberry32'],
+    remote: ['Example page', 'When the Hugo layout has set window.PLEW_EXAMPLE, the app fetches that manifest and every file it lists, wraps them as File objects and calls handleFiles(). A loading banner covers the wait. window.PLEW_SETUP, if set, is applied afterwards.', 'loadRemoteExample · loadRemoteSetup · showDatasetLoading'],
+    setup: ['Setup JSON', 'A saved view. applyVisualizationConfig() restores column roles first (so classification is right), then location columns, calibration, encodings, filters, display toggles, labels and the active basemap, re-running each area\'s normal handler as it goes.', 'buildVisualizationConfig · applyVisualizationConfig · displaySnapshot · applyDisplaySnapshot'],
+    parse: ['Parse the table', 'ingestCSV() parses the text, pulls out the reserved __PLEWMAP_CALIB__ row, resets edit history, roles, filters and custom legend values, and keeps a copy of the rows in S.originalData for "Reset all". The CSV parser detects comma, tab or semicolon and handles quoted cells on one line.', 'ingestCSV · parseDataFile · parseCSV · detectDelimiter · splitLine · parseJSON'],
+    classify: ['Classify columns', 'For each header: a role (from a prefix, an override, or a name pattern), whether every non-empty value is numeric, and the sorted list of unique values. The result, S.cols, drives every dropdown, the tooltip, the record window and the legend.', 'classifyColumns · parsePrefix · displayName · isMediaName'],
+    guess: ['First guesses', 'X and Y: loc:: columns, then lon/lat/x/y names, then the first two numeric columns. Colour: the first categorical candidate, else the first numeric one. Shape: another categorical column with at most 8 values. ID-like columns (all values unique) are excluded.', 'guessLocColumns · encCandidates · autoAssignEncodings · populateLocSelectors · populateEncSelectors'],
+    basemap: ['Load background', 'Background images are read as data: URLs and listed in S.basemaps, each with optional edges from its sidecar. activateBasemap() sets the <img> source and, once it has loaded, records the pixel size, applies that basemap\'s edges and redraws. A blank frame is a canvas-drawn image with isFrame set.', 'activateBasemap · applyBasemapCalib · switchBasemap · saveActiveBasemapCalib · parseCalibText · setBackground'],
+    calib: ['Calibrate', 'Reads the edge inputs or solves the three-point affine transform (Cramer\'s rule on a 3×3 system), sets S.calib.valid and writes the status line. Called on every edge edit, mode change, location change and embedded-calibration restore.', 'applyCalibration · setCalibMode · prefillEdges · computeDefaultEdges · resetCalibration · solveAffine · applyEmbeddedCalib'],
+    's-table': ['State: table', 'headers is the column order. data is an array of plain objects keyed by header, each with a private _index equal to its position. cols caches role, numeric and uniq per header. originalData is the untouched copy.', 'S.headers · S.data · S.cols · S.originalData · S.roleOverrides · S.columnVisibility · S.columnRecordOrder'],
+    's-pos': ['State: position', 'Which two columns are X and Y, whether Y is Mercator-projected, and the calibration: mode (edges, affine, pixels), the four edges, three reference points, the solved affine matrix, and flags for valid and prefilled.', 'S.locX · S.locY · S.mercator · S.calib · S.pendingCalib · S.skipped'],
+    's-look': ['State: look', 'enc holds the column, type and per-category overrides for each of colour, size and shape. filters is { column: { value: true|false } } and only ever contains the current categorical encoding columns. speakerFilter is a Set of selected speaker IDs.', 'S.enc · S.filters · S.speakerFilter'],
+    's-bg': ['State: background and media', 'basemaps is the list of loaded backgrounds; activeBasemapId picks one. media maps a filename to a blob: URL. alignFiles holds dropped .eaf and .TextGrid File objects; alignCache holds their parsed form, including unsaved corrections.', 'S.basemaps · S.activeBasemapId · S.imageUrl · S.imgW · S.imgH · S.isFrame · S.media · S.alignFiles · S.alignCache'],
+    's-view': ['State: view', 'Zoom and pan (scale, tx, ty), the plot size preset, the title and axis labels with their attached or fixed mode, and the position, minimised state and snapshot options of the on-map legend and zoom bar.', 'S.view · S.stagePreset · S.labels · S.legendPanelPos · S.zoomBarPos · S.snapLegendLayout · S.snapLegendTheme'],
+    's-edit': ['State: edit history', 'undoStack and redoStack hold actions of three kinds: fields (old and new values), add and delete. changeLog is the human-readable list. compare holds the row indices in slots A and B; marked is a Set of row indices.', 'S.undoStack · S.redoStack · S.changeLog · S.compare · S.marked · S.editingRow'],
+    render: ['renderAll()', 'Decides which sidebar sections are visible, empties the SVG overlay, then for each row: check filters, project to pixels, apply jitter, compute colour, size and shape, create the element and attach its hover and click listeners. Finishes by rebuilding the legend, filter chips, speaker panel and the row count line. Nearly every handler ends by calling it.', 'renderAll · renderLabels · updateMeta · shapeEl · drawGraticule'],
+    project: ['Data → pixels', 'dataToPixel() maps a row\'s X and Y to image pixels through the current calibration. Edges mode is a linear stretch; affine mode applies the solved matrix; pixels mode passes values through. pixelToData() is the exact inverse, used when dragging or adding points.', 'dataToPixel · pixelToData · projY · invProjY · clientToPixel'],
+    visual: ['Value → visual', 'colorFor() interpolates along a ramp for continuous columns or picks from a 10-colour palette by category index, honouring per-category overrides. sizeFor() does the same between Min px and Max px. shapeFor() cycles through 8 shapes.', 'colorFor · sizeFor · shapeFor · legendCategories · colRange · lerpColor · activeRamp'],
+    visible: ['Which rows show', 'A row is drawn when it passes the speaker filter and every categorical filter. buildStackInfo() groups rows that share identical coordinates so jitterPx() can fan them out in a sunflower pattern when "Spread stacked points" is on.', 'rowVisible · isFilterOn · rowPassesSpeakerFilter · buildStackInfo · jitterPx · maybeAutoJitter'],
+    panels: ['Side panels', 'buildLegendHtml() produces the legend in three flavours: interactive for the sidebar and the on-map panel, and a static one for snapshot preview and export. renderFilters() and renderSpeakerFilter() rebuild their chips from S.filters and S.speakerFilter.', 'renderLegend · buildLegendHtml · renderMapLegendContent · renderFilters · syncFilters · renderSpeakerFilter'],
+    'o-svg': ['Points on the map', 'One SVG element per visible row (circle, rect or path) inside #overlay, which sits exactly on top of the background <img>. Ring mode adds a second circle per row. Calibration markers and the graticule are drawn into the same SVG.', '#overlay · #bgImage · #mapZoomWrap · showTooltip · onPointClick · startPointDrag'],
+    'o-modal': ['Record window', 'One modal serves four views: read-only record with media tabs, the edit form, the side-by-side comparison, and the new-point form. Media URLs are resolved by filename against S.media; YouTube links become embeds.', 'openModal · openRecordEditor · saveRecordEditor · renderCompareModal · getRowMedia · mediaHTML · resolveMediaUrl'],
+    'o-align': ['Transcript viewer', 'When a record has a matching .eaf or .TextGrid, it is parsed on first open and cached. ELAN shows as chunks with play buttons and interlinear tiers; TextGrid shows as a Praat-style timeline with a waveform decoded through Web Audio. Text can be corrected in place and downloaded.', 'fillAlignViewer · alignSourcesForRow · loadAlignBundle · parseEAF · parseTextGrid · eafChunksHTML · textGridHTML · bindAlignViewer · downloadAlignFile'],
+    'o-export': ['Exports', 'CSV: rows plus the reserved calibration row, headers prefixed with their roles. Snapshot: the background and a serialised copy of the SVG drawn onto a canvas at native resolution, with labels in the margins and the legend rasterised by html2canvas. Setup: buildVisualizationConfig() as JSON.', 'downloadCSV · generateCSV · buildCalibPayload · downloadSnapshot · captureLegendForSnapshot · downloadVisualizationConfig · downloadChangeLog']
+  };
+  var detail = document.getElementById('nodeDetail');
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('.node'));
+  function showNode(btn){
+    var d = NODES[btn.getAttribute('data-k')];
+    if (!d) return;
+    nodes.forEach(function(n){ n.setAttribute('aria-pressed', n === btn ? 'true' : 'false'); });
+    detail.textContent = '';
+    var h = document.createElement('h3'); h.textContent = d[0];
+    var p = document.createElement('p'); p.textContent = d[1];
+    var f = document.createElement('div'); f.className = 'fn'; f.textContent = d[2];
+    detail.appendChild(h); detail.appendChild(p); detail.appendChild(f);
+  }
+  nodes.forEach(function(n){ n.addEventListener('click', function(){
+    showNode(n);
+    var r = detail.getBoundingClientRect();
+    if (r.top > window.innerHeight || r.bottom < 0) detail.scrollIntoView({ block:'nearest', behavior:'smooth' });
+  }); });
+  showNode(document.querySelector('.node.hub'));
+})();
+</script>
+</body>
+</html>
