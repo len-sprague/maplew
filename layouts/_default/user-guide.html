@@ -21,17 +21,26 @@ body { font-family:'Segoe UI', system-ui, sans-serif; background:#0f1419; color:
 .wrap th { background:#1a1f26; color:#9aa5b0; }
 .wrap code { background:#1a1f26; padding:1px 5px; border-radius:4px; font-size:0.85em; }
 .wrap pre { background:#1a1f26; border:1px solid #2d3640; border-radius:8px; padding:12px; overflow:auto; margin:0.8em 0; font-size:0.8rem; }
+.wrap table { display:block; overflow-x:auto; }
+.wrap pre code { background:none; padding:0; font-size:inherit; }
+.wrap code { overflow-wrap:anywhere; }
+.wrap pre code { overflow-wrap:normal; }
+.wrap a { color:#4ecdc4; }
 .wrap blockquote { border-left:3px solid #4ecdc4; padding:4px 12px; color:#9aa5b0; margin:0.8em 0; }
 </style>
 </head>
 <body>
 <div class="page-header">
   <a class="back-link" href="{{ .Site.Home.RelPermalink }}">← Editor</a>
-  <h1>User guide</h1>
-  <p style="margin-top:8px;"><a href="{{ "how-it-works/" | relURL }}" style="color:#4ecdc4;text-decoration:none;font-size:13px;">New here? See how it works, step by step →</a></p>
+  <h1>{{ .Title }}</h1>
+  <p style="margin-top:8px;font-size:13px;">
+    <a href="{{ "how-it-works/" | relURL }}" style="color:#4ecdc4;text-decoration:none;">How it works →</a> &nbsp;
+    <a href="{{ "user-guide/" | relURL }}" style="color:#4ecdc4;text-decoration:none;">User guide →</a> &nbsp;
+    <a href="{{ "code-map/" | relURL }}" style="color:#4ecdc4;text-decoration:none;">Code map →</a>
+  </p>
 </div>
 <div class="wrap">
-{{ readFile "README-plew-map.md" | markdownify }}
+{{ readFile (.Params.source | default "README-plew-map.md") | markdownify }}
 </div>
 </body>
 </html>

@@ -46,7 +46,7 @@ The X and Y dropdowns are pre-selected by, in priority order: `loc::` prefixes â
 
 The **Web Mercator** checkbox pre-transforms the Y coordinate for latitude data plotted on web-map imagery. Rule of thumb: on for screenshots of Google Maps/OpenStreetMap-style maps, off for everything else. (Earlier versions of this guide pointed to a `MERCATOR-PROJECTIONS.md` explainer; that file is not part of this repository.)
 
-If you change the X or Y column after the plot is showing, press **Reset to defaults** in Step 2 so the edge values are guessed again for the new columns. The same applies after loading a different table into a page that already had one.
+If you change the X or Y column while the edge values are still the automatic guess, they are guessed again for the new columns. Edge values you typed, or that came with a saved CSV, a sidecar file or a setup file, are kept; press **Reset to defaults** in Step 2 to discard them. Loading a different table works the same way, with one addition: typed or loaded edge values survive a new table only when a background image you supplied is showing, because they describe that image. On a blank frame they are guessed again.
 
 ## Step 2 â€” Calibration
 
@@ -169,7 +169,7 @@ Also worth knowing:
 
 - Avoid line breaks inside a cell. A note with a line break saves correctly but is split into two rows when the CSV is loaded again.
 - A category value or column name containing an apostrophe (`Valle d'Aosta`) plots normally, but its filter chip and legend click do not respond.
-- Continuous colour or size becomes slow on large tables (several seconds per redraw at 5,000 rows). Categorical encodings stay fast. Tables above roughly 100,000 rows do not load.
+- Very large tables load (200,000 rows has been tested), but every point is a separate SVG element, so panning and redrawing get heavy from a few tens of thousands of rows.
 - The colour ramp choice is not restored by **Import setup**; pick it again after importing.
 - Record-window snapshots and the legend in Snapshot PNG need an internet connection; everything else works offline.
 

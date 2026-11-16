@@ -2331,7 +2331,9 @@ function sidecarPairsWithImage(sidecarName){
 function saveActiveBasemapCalib(){
   const bm = S.basemaps.find(b=>b.id===S.activeBasemapId);
   if (!bm || S.isFrame) return;
-  bm.edges = {
+  // A prefill is a guess from the data, not a property of this image: don't store it, or
+  // coming back to this basemap would turn the guess into a "real" calibration.
+  bm.edges = S.calib.prefilled ? null : {
     L: numOrNull('edgeL'), R: numOrNull('edgeR'),
     T: numOrNull('edgeT'), B: numOrNull('edgeB')
   };
@@ -2540,6 +2542,16 @@ function ingestCSV(text, filename){
   classifyColumns();
   guessLocColumns();
   S.calib.valid=false; S.calib.affine=null; S.calib.pts=[mkPt(),mkPt(),mkPt()]; S.calib.placing=-1;
+  // Edge values describe the background image, so they outlive a table only when the user
+  // typed or loaded them for an image they supplied. A prefill, and anything set on a blank
+  // frame or a demo canvas, belonged to the previous table: clear it so prefillEdges() guesses again.
+  const keepEdges = !!S.activeBasemapId && !S.isFrame && !S.calib.prefilled && S.calib.edges.L!==null;
+  if (!keepEdges){
+    S.calib.edges = {L:null,R:null,T:null,B:null};
+    S.calib.prefilled = false;
+    ['edgeL','edgeR','edgeT','edgeB'].forEach(id=>{ document.getElementById(id).value = ''; });
+  }
+  S.calib.autoDefaults = null;
   S.enc.color.catColors = {};
   S.enc.size.catSizes = {};
   S.enc.shape.catShapes = {};
@@ -2596,6 +2608,7 @@ function populateLocSelectors(){
   onLocChange(true);
 }
 function onLocChange(silent){
+  const prevX = S.locX, prevY = S.locY;
   S.locX = document.getElementById('locXSel').value;
   S.locY = document.getElementById('locYSel').value;
   S.mercator = document.getElementById('mercChk').checked;
@@ -2604,13 +2617,26 @@ function onLocChange(silent){
   const el = document.getElementById('locStatus');
   if (bad>0) setStatus('locStatus','warn', `${bad} row(s) have non-numeric coordinates and will be skipped.`);
   else el.className='status';
-  prefillEdges();
+  prefillEdges(S.locX!==prevX || S.locY!==prevY);
   applyCalibration(true);
   renderAll();
 }
+// Redraw memo. renderAll() sets this for the duration of its point loop, where nothing
+// writes to S, so colRange() and legendCategories() can answer each column once instead of
+// once per row. It is null everywhere else, which is why no edit path has to invalidate it.
+let renderMemo = null;
 function colRange(key){
-  const nums = S.data.map(r=>Number(r[key])).filter(Number.isFinite);
-  return nums.length ? [Math.min(...nums), Math.max(...nums)] : [0,1];
+  const memo = renderMemo && renderMemo.range;
+  if (memo && memo.has(key)) return memo.get(key);
+  // Plain loop, not Math.min(...nums): spreading a very large array overflows the call stack.
+  let mn = Infinity, mx = -Infinity;
+  for (const r of S.data){
+    const v = Number(r[key]);
+    if (Number.isFinite(v)){ if (v < mn) mn = v; if (v > mx) mx = v; }
+  }
+  const out = mn <= mx ? [mn, mx] : [0,1];
+  if (memo) memo.set(key, out);
+  return out;
 }
 function computeDefaultEdges(){
   if (!S.locX || !S.locY) return null;
@@ -2619,12 +2645,14 @@ function computeDefaultEdges(){
   // y: assume y-up data (lat-like) → top gets the max
   return { L:round4(x0-padX), R:round4(x1+padX), T:round4(y1+padY), B:round4(y0-padY) };
 }
-function prefillEdges(){
+// refresh=true (the X or Y column changed) replaces edges that are still the automatic
+// guess. Edges the user typed, or that came from a CSV row, sidecar or setup file, are kept.
+function prefillEdges(refresh){
   const d = computeDefaultEdges();
   if (!d) return;
   S.calib.autoDefaults = d;
   const E = S.calib.edges;
-  if (E.L!==null) return; // don't clobber user input
+  if (E.L!==null && !(refresh && S.calib.prefilled)) return; // don't clobber user input
   document.getElementById('edgeL').value = d.L;
   document.getElementById('edgeR').value = d.R;
   document.getElementById('edgeT').value = d.T;
@@ -3239,6 +3267,13 @@ function isCategoricalEncodingCol(h){
   return false;
 }
 function legendCategories(h){
+  const memo = renderMemo && renderMemo.cats;
+  if (memo && memo.has(h)) return memo.get(h);
+  const out = computeLegendCategories(h);
+  if (memo) memo.set(h, out);
+  return out;
+}
+function computeLegendCategories(h){
   const set = new Set(S.cols[h]?.uniq || []);
   if (h === S.enc.color.col && S.enc.color.type === 'categorical'){
     Object.keys(S.enc.color.catColors).forEach(v => set.add(v));
@@ -3448,6 +3483,8 @@ function renderAll(){
   drawGraticule(svg, scale);
   S.stackInfo = buildStackInfo(S.data);
   let plotted = 0, filtered = 0;
+  renderMemo = { range:new Map(), cats:new Map() };
+  try {
   S.data.forEach((row, rowIdx)=>{
     if (!rowVisible(row)){ filtered++; return; }
     const pt = dataToPixel(row[S.locX], row[S.locY]);
@@ -3497,6 +3534,7 @@ function renderAll(){
     }
     plotted++;
   });
+  } finally { renderMemo = null; }
   renderLegend();
   renderFilters();
   renderSpeakerFilter();
@@ -4406,18 +4444,29 @@ function showDatasetLoading(){
 function hideDatasetLoading(){
   document.getElementById('datasetLoadingBanner')?.classList.remove('active');
 }
+const EXAMPLE_FETCH_CONCURRENCY = 6;   // what browsers allow per host over HTTP/1.1
 async function loadRemoteExample(manifestUrl){
   setStatus('inputStatus','warn','Loading example…');
   const res = await fetch(manifestUrl);
   if (!res.ok) throw new Error('manifest '+res.status);
   const man = await res.json();
   const base = manifestUrl.replace(/[^/]+$/, '');
-  const files = [];
-  for (const name of man.files){
-    const r = await fetch(base + name);
-    if (!r.ok) throw new Error(name+' '+r.status);
-    files.push(new File([await r.blob()], name));
-  }
+  if (!Array.isArray(man.files)) throw new Error('manifest has no "files" list');
+  // Fetch a few files at a time. Each result is stored at its manifest position, so
+  // handleFiles() receives the same list, in the same order, as the one-at-a-time loop did.
+  const names = man.files, files = new Array(names.length);
+  let next = 0, failed = false;
+  const worker = async ()=>{
+    while (next < names.length && !failed){
+      const i = next++;
+      try {
+        const r = await fetch(base + names[i]);
+        if (!r.ok) throw new Error(names[i]+' '+r.status);
+        files[i] = new File([await r.blob()], names[i]);
+      } catch(e){ failed = true; throw e; }
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(EXAMPLE_FETCH_CONCURRENCY, names.length) }, worker));
   await handleFiles(files);
   if (!S.imageSet) useBlankFrame();
 }

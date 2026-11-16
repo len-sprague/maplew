@@ -132,6 +132,7 @@ td:first-child { color:var(--fg); }
       <a id="navEditor" href="plew-map.html">← Editor</a>
       <a id="navGuide" href="README-plew-map.md">User guide</a>
       <a id="navExamples" href="#" hidden>Example datasets</a>
+      <a id="navCodeMap" href="CODE-MAP.md">Code map</a>
     </nav>
     <h1>How Maplew works</h1>
     <p>Maplew (the file is called <code>plew-map.html</code>) plots the rows of a table as points on a picture. This page shows what happens to your files from the moment you drop them to the moment you share the result. The first half needs no coding knowledge. The second half is a map of the internals for people who maintain or extend the tool.</p>
@@ -180,7 +181,7 @@ td:first-child { color:var(--fg); }
       <div class="cols3">
         <div><h4>You do</h4><ul><li>Check the X and Y dropdowns.</li><li>Tick <b>Web Mercator</b> only if the background is a screenshot of a web map (Google Maps, OpenStreetMap).</li></ul></div>
         <div><h4>Maplew does</h4><ul><li>Guesses in this order: <code>loc::</code> columns, then names like lon/lat or x/y, then the first two numeric columns.</li><li>Counts rows whose coordinates are not numbers and tells you how many will be skipped.</li></ul></div>
-        <div><h4>Good to know</h4><ul><li>X and Y need not be geography. Any two numeric columns make a scatter plot.</li><li>After changing X or Y, press <b>Reset to defaults</b> in the next step so the edge values are guessed again for the new columns.</li></ul></div>
+        <div><h4>Good to know</h4><ul><li>X and Y need not be geography. Any two numeric columns make a scatter plot.</li><li>Changing X or Y guesses the edge values again in the next step, unless you typed or loaded your own; those are kept.</li></ul></div>
       </div>
     </div>
 
@@ -190,7 +191,7 @@ td:first-child { color:var(--fg); }
       <div class="cols3">
         <div><h4>You do, one of</h4><ul><li><b>Image edges:</b> type the data value at the left, right, top and bottom edge.</li><li><b>Three-point:</b> click three places on the picture and type their coordinates. Handles tilted or scanned maps.</li><li><b>Pixels:</b> nothing; the table already holds pixel positions.</li></ul></div>
         <div><h4>Maplew does</h4><ul><li>Prefills the edges from your data's range so something shows at once.</li><li>Marks that prefill in yellow as approximate until you replace it.</li><li>Redraws on every change.</li></ul></div>
-        <div><h4>Good to know</h4><ul><li>With <b>No background</b> the prefill is all you need.</li><li>You may never need to type anything: a saved CSV, a sidecar file or a setup file can <a href="#calibration">carry the calibration</a>.</li><li>Loaded a different table and see no points? Press <b>Reset to defaults</b>.</li></ul></div>
+        <div><h4>Good to know</h4><ul><li>With <b>No background</b> the prefill is all you need.</li><li>You may never need to type anything: a saved CSV, a sidecar file or a setup file can <a href="#calibration">carry the calibration</a>.</li><li>Edge values belong to the picture: load a new table onto the same map and they stay. On a blank frame they are guessed again.</li></ul></div>
       </div>
     </div>
 
@@ -396,13 +397,13 @@ td:first-child { color:var(--fg); }
     <tbody>
       <tr><td>1</td><td><code>content/examples/&lt;name&gt;.md</code></td><td>Front matter names a <code>manifest</code> and optionally a <code>setup</code>.</td></tr>
       <tr><td>2</td><td><code>layouts/_default/example-map.html</code></td><td>Hugo inlines <code>plew-map.html</code> and sets <code>PLEW_EXAMPLE</code> and <code>PLEW_SETUP</code>.</td></tr>
-      <tr><td>3</td><td><code>loadRemoteExample</code></td><td>Fetches the manifest, then every file it lists, one after another, and wraps each as a <code>File</code>.</td></tr>
+      <tr><td>3</td><td><code>loadRemoteExample</code></td><td>Fetches the manifest, then every file it lists, six at a time, and wraps each as a <code>File</code> in manifest order.</td></tr>
       <tr><td>4</td><td><code>handleFiles</code></td><td>The same path as a manual drop. If no image arrived, <code>useBlankFrame()</code> supplies one.</td></tr>
       <tr><td>5</td><td><code>loadRemoteSetup</code></td><td>Fetches the setup JSON and calls <code>applyVisualizationConfig</code>.</td></tr>
     </tbody>
   </table></div>
 
-  <p>Measured slow spots, reproducible bugs and streamlining ideas are in <a id="findingsLink" href="https://github.com/len-sprague/maplew/blob/main/REVIEW-FINDINGS.md">REVIEW-FINDINGS.md</a>.</p>
+  <p>The full reference (every state field, the call tree of each entry point, and an index of all functions) is the <a id="codeMapLink" href="CODE-MAP.md">code map</a>. Measured slow spots, reproducible bugs and streamlining ideas are in <a id="findingsLink" href="https://github.com/len-sprague/maplew/blob/main/REVIEW-FINDINGS.md">REVIEW-FINDINGS.md</a>.</p>
 </section>
 
 </main>
@@ -417,6 +418,8 @@ td:first-child { color:var(--fg); }
   setHref('navEditor', nav.editor);
   setHref('navGuide', nav.guide);
   setHref('navExamples', nav.examples);
+  setHref('navCodeMap', nav.codeMap);
+  setHref('codeMapLink', nav.codeMap);
 
   // Stepper
   var tabs = Array.prototype.slice.call(document.querySelectorAll('.step-btn'));
