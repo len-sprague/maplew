@@ -6,6 +6,9 @@ All notable changes to **plew-map** in this repo. Format loosely follows [Keep a
 
 Work-in-progress on `plew-map.html`; not yet committed or merged to `main`.
 
+### Changed
+- **On-map legend can start minimized.** **Export setup** now saves whether the on-map legend is minimized, and **Import setup** (or an example page's setup file) restores it. Setup files saved before this change leave the legend as it is. The ISAPh PwPD IPUs and ISAPh PwPD Scatter examples now open with the legend shown but minimized, so it does not cover points; press **+** on it to open it.
+
 ### Fixed
 - **Slow redraws with continuous colour or size.** One redraw of 20,000 rows went from about 21 s to about 0.25 s. Nothing looks different; the column's range is now worked out once per redraw instead of once per point.
 - **Very large tables.** Tables above roughly 100,000 rows failed to load; 200,000 rows now load and draw.

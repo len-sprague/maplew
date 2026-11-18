@@ -80,6 +80,8 @@
     "drag": false,
     "addPoint": false,
     "mapLegend": true
+,
+    "mapLegendMinimized": true
   },
   "roleOverrides": {
     "med::image": "dim"

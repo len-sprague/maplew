@@ -117,7 +117,7 @@ These live in **Encodings**, **Display** and the **Legend**, and appear once the
 
 - **Filter categories.** Every categorical colour, size or shape column gets a row of chips under Encodings. Untick a chip to hide that category; **All** / **None** set the whole row. Clicking an entry in the legend does the same thing.
 - **Legend overrides.** Each legend row carries its own control: a colour picker, a size in px, or a shape menu. **Reset scale** and **Reset shapes** return to the defaults (A–Z order).
-- **Legend on the map.** *Show legend on map* mirrors the legend onto the plot. Drag its ⋮⋮ grip to move it, − to minimize it. **Snapshot export setting** at its foot chooses where the legend goes in a Snapshot PNG (beside or below the plot) and its frame (dark, light or a custom colour); **Preview** shows the result in place.
+- **Legend on the map.** *Show legend on map* mirrors the legend onto the plot. Drag its ⋮⋮ grip to move it, − to minimize it (+ opens it again). **Export setup** remembers whether it was minimized, so a setup file can open the plot with the legend already minimized. **Snapshot export setting** at its foot chooses where the legend goes in a Snapshot PNG (beside or below the plot) and its frame (dark, light or a custom colour); **Preview** shows the result in place.
 - **Spread stacked points.** When several rows share exactly the same coordinates, this fans them out so each can be clicked. It switches itself on when a newly loaded table has such rows. It changes the drawing only; saved coordinates are untouched.
 - **Plot size.** The 1x / 1.5x / 2x / Fit buttons next to the zoom controls change how large the plot box is on screen, separately from zooming into it.
 - **Explore speaker.** Appears only when the table has a column named `speaker` or `speaker_id` (with or without a prefix). It filters the map to chosen speakers; *Only speakers with multiple stimuli* keeps speakers who have more than one distinct value in a column named `image`, `task` or `stimulus`. A record of such a speaker also lists their other recordings.
@@ -157,7 +157,7 @@ The **Export** section appears once the plot is live, mirroring the download too
 
 **📸 Snapshot PNG** composites the background image and the point overlay (including any visible graticule and calibration markers) into a single PNG at the image's native resolution, named `<dataset>-snapshot.png`. The points are rendered natively from the SVG overlay, so shapes, rings, and gradient-colored points export exactly as displayed. Four checkboxes choose whether the title, X-axis label, Y-axis label and legend are added in the margins. The legend is the one part drawn with the `html2canvas` library, which is loaded from the internet: offline, the PNG is still saved, without the legend, and a warning says so. The snapshot always shows the whole image, whatever the current zoom and pan.
 
-**📤 Export setup** / **📥 Import setup** save encodings, filters, calibration, and column roles as JSON (no image or audio). Re-apply after loading the same table.
+**📤 Export setup** / **📥 Import setup** save encodings, filters, calibration, column roles, Display options and whether the on-map legend is minimized as JSON (no image or audio). Re-apply after loading the same table.
 
 ---
 
