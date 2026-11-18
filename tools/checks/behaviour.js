@@ -216,6 +216,50 @@ const hash = (s)=>crypto.createHash('sha1').update(s).digest('hex').slice(0, 12)
     return { ok:o.edges === '{"L":0,"R":10,"T":10,"B":0}' && o.pts === 2 && o.color === 'dim::g' && o.vOn === false && o.prefilled === false, observed:o };
   });
 
+  // ════════ LEGMIN: the on-map legend's minimised state travels in the setup file ════════
+  const legendState = ()=>{
+    const panel = document.getElementById('mapLegendPanel'), btn = document.getElementById('mapLegendToggleBtn');
+    return { shown:panel.classList.contains('visible'), minimized:panel.classList.contains('minimized'), state:S.legendPanelMinimized, btn:btn.textContent };
+  };
+  await check('LEGMIN-setup-roundtrip', 'a setup saved with the legend minimised re-applies it minimised (+ button); one saved expanded expands it', async (open)=>{
+    const p = await open();
+    const o = await p.evaluate(async ({ csv, fnSrc })=>{
+      const st = eval('(' + fnSrc + ')');
+      await handleFiles([T.csvFile(csv)]); await T.frame(); T.select('colorSel', 'dim::g');
+      toggleMapLegend();
+      const minCfg = JSON.parse(JSON.stringify(buildVisualizationConfig()));
+      toggleMapLegend();
+      const openCfg = JSON.parse(JSON.stringify(buildVisualizationConfig()));
+      applyVisualizationConfig(minCfg); const afterMin = st();
+      applyVisualizationConfig(openCfg); const afterOpen = st();
+      return { saved:[minCfg.display.mapLegendMinimized, openCfg.display.mapLegendMinimized], afterMin, afterOpen };
+    }, { csv:TABLE_A, fnSrc:legendState.toString() });
+    const ok = o.saved[0] === true && o.saved[1] === false
+      && o.afterMin.shown && o.afterMin.minimized && o.afterMin.state === true && o.afterMin.btn === '+'
+      && o.afterOpen.shown && !o.afterOpen.minimized && o.afterOpen.state === false && o.afterOpen.btn === '−';
+    return { ok, observed:o };
+  });
+  await check('LEGMIN-old-setup-leaves-state', 'a setup file without the field leaves the legend as the user has it', async (open)=>{
+    const p = await open();
+    const o = await p.evaluate(async ({ csv, fnSrc })=>{
+      const st = eval('(' + fnSrc + ')');
+      await handleFiles([T.csvFile(csv)]); await T.frame(); T.select('colorSel', 'dim::g');
+      const cfg = JSON.parse(JSON.stringify(buildVisualizationConfig())); delete cfg.display.mapLegendMinimized;
+      applyVisualizationConfig(cfg); const fromOpen = st();
+      toggleMapLegend(); applyVisualizationConfig(cfg); const fromMin = st();
+      return { fromOpen, fromMin };
+    }, { csv:TABLE_A, fnSrc:legendState.toString() });
+    return { ok:!o.fromOpen.minimized && o.fromMin.minimized && o.fromMin.btn === '+', observed:o };
+  });
+  for (const ex of EXAMPLES.filter(e=>/^isaph-/.test(e.page))){
+    await check('LEGMIN-example-' + ex.page, 'example opens with the on-map legend shown and minimised', async (open)=>{
+      const boot = `window.PLEW_HUGO=true;window.PLEW_EXAMPLE=${JSON.stringify('static/' + ex.manifest)};` + (ex.setup ? `window.PLEW_SETUP=${JSON.stringify('static/' + ex.setup)};` : '');
+      const p = await open(boot); await waitExample(p);
+      const o = await p.evaluate(`(${legendState.toString()})()`);
+      return { ok:o.shown && o.minimized && o.state === true && o.btn === '+', observed:o };
+    });
+  }
+
   // ════════ B1: edge values after a new table or a change of X / Y ════════
   await check('B1-second-table-on-frame', 'second table gets a fresh guess; all 3 points inside the frame', async (open)=>{
     const p = await open();

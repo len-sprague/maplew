@@ -146,7 +146,7 @@ Declared once under the STATE banner. Grouped here by purpose.
 | `S.view` | `{ scale, tx, ty }` zoom and pan, applied as a CSS transform by `applyViewTransform()` |
 | `S.stagePreset` | Plot size preset: `native`, `150`, `200`, `fit` |
 | `S.zoomBarPos`, `S.legendPanelPos` | Dragged positions of the zoom bar and on-map legend; `null` means default corner |
-| `S.legendPanelMinimized`, `S.legendPanelMode`, `S.legendSnapOptsOpen` | On-map legend: minimised, edit/snapshot-preview mode, options row open |
+| `S.legendPanelMinimized`, `S.legendPanelMode`, `S.legendSnapOptsOpen` | On-map legend: minimised (set only by `setMapLegendMinimized()`; saved in the setup file), edit/snapshot-preview mode, options row open |
 | `S.snapLegendLayout`, `S.snapLegendTheme` | Legend placement (`side` / `bar`) and frame (`dark` / `light` / `custom`) in Snapshot PNG |
 | `S._legendInteractiveHtml` | The last interactive legend HTML, reused for the on-map copy |
 
@@ -491,13 +491,13 @@ fillAlignViewer
   enc:     { color:{col,type,ramp,catColors}, size:{col,type,minPx,maxPx,catSizes}, shape:{col,catShapes} },
   filters: { header: { value: bool } },
   speakerFilter: { multiOnly, selected:[…] },
-  display: { baseSize, opacity, stroke, zoomScale, ring, grat, jitter, drag, addPoint, mapLegend },
+  display: { baseSize, opacity, stroke, zoomScale, ring, grat, jitter, drag, addPoint, mapLegend, mapLegendMinimized },
   roleOverrides, columnVisibility, columnRecordOrder,
   activeBasemapId,
   labels:  { title, xAxis, yAxis, mode } }
 ```
 
-Not in the file: the plot size preset, zoom and pan, panel positions, snapshot legend options, the custom ramp colours. The colour ramp name is written but not restored on import (finding B4 in `REVIEW-FINDINGS.md`).
+`display.mapLegendMinimized` is the on-map legend's minimised state (`S.legendPanelMinimized`), applied by `setMapLegendMinimized()`; a file without it leaves the legend as it is. Not in the file: the plot size preset, zoom and pan, panel positions, snapshot legend options, the custom ramp colours. The colour ramp name is written but not restored on import (finding B4 in `REVIEW-FINDINGS.md`).
 
 ### The legend
 
@@ -529,7 +529,7 @@ On the plot:
 | Drag the map | listeners in `initMapNavigation`, gated by `canPanMap()` |
 | `1x` / `1.5x` / `2x` / `Fit` | `setStageSize()` → `updateStageSizeButtons()` |
 | Zoom bar grip | `initZoomBarDrag`; `applyZoomBarPos()`, `clampZoomBarPos()`, `resetZoomBarPos()` |
-| On-map legend grip and `−` | `initLegendPanelDrag`; `applyLegendPanelPos()`, `clampLegendPanelPos()`, `resetLegendPanelPos()`, `toggleMapLegend()` |
+| On-map legend grip and `−` | `initLegendPanelDrag`; `applyLegendPanelPos()`, `clampLegendPanelPos()`, `resetLegendPanelPos()`, `toggleMapLegend()` → `setMapLegendMinimized()` |
 | Title and axis labels | `commitLabelEdit()`, `labelKeydown()`, `handleLabelPaste()` |
 | Sidebar toggle, section headers | `toggleSidebar()`, `toggleSection()` (`readSectionCollapsePrefs()`, `writeSectionCollapsePrefs()`) |
 
@@ -581,7 +581,7 @@ Every function in `plew-map.html`, grouped by the banner it sits under, in sourc
 
 **STATE** — `mkPt`
 
-**MAP ZOOM & PAN** — `applyViewTransform`, `applyZoomBarPos`, `clampZoomBarPos`, `resetZoomBarPos`, ▶`initZoomBarDrag`, `applyLegendPanelPos`, `clampLegendPanelPos`, `resetLegendPanelPos`, `toggleMapLegend`, ▶`initLegendPanelDrag`, `resetMapView`, `setStageSize`, `updateStageSizeButtons`, `mapZoomBy`, `scheduleZoomRerender`, `canPanMap`, ▶`initMapNavigation`
+**MAP ZOOM & PAN** — `applyViewTransform`, `applyZoomBarPos`, `clampZoomBarPos`, `resetZoomBarPos`, ▶`initZoomBarDrag`, `applyLegendPanelPos`, `clampLegendPanelPos`, `resetLegendPanelPos`, `setMapLegendMinimized`, `toggleMapLegend`, ▶`initLegendPanelDrag`, `resetMapView`, `setStageSize`, `updateStageSizeButtons`, `mapZoomBy`, `scheduleZoomRerender`, `canPanMap`, ▶`initMapNavigation`
 
 **CSV PARSING** — `detectDelimiter`, `splitLine`, `parseCSV`, `isJsonFilename`, `parseJSON`, `parseDataFile`
 
@@ -646,4 +646,4 @@ The documents were last checked against this exact version of the tool. The hash
 
 | File | Lines | Blob hash | Verified |
 |------|------:|-----------|----------|
-| `plew-map.html` | 4508 | `a5e119b5f1e099af486455b0ad1a822a8b7c2519` | 2026-11-16 |
+| `plew-map.html` | 4513 | `bc57b6a493d6988d7791199dd4b2a9e181e40180` | 2026-11-18 |

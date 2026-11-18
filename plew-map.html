@@ -842,11 +842,14 @@ function resetLegendPanelPos(){
   S.legendPanelPos = null;
   applyLegendPanelPos();
 }
-function toggleMapLegend(){
-  S.legendPanelMinimized = !S.legendPanelMinimized;
+function setMapLegendMinimized(min){
+  S.legendPanelMinimized = !!min;
   document.getElementById('mapLegendPanel')?.classList.toggle('minimized', S.legendPanelMinimized);
   const btn = document.getElementById('mapLegendToggleBtn');
   if (btn){ btn.textContent = S.legendPanelMinimized ? '+' : '−'; btn.title = S.legendPanelMinimized ? 'Expand legend' : 'Minimize legend'; }
+}
+function toggleMapLegend(){
+  setMapLegendMinimized(!S.legendPanelMinimized);
 }
 let legendPanelDrag = null;
 (function initLegendPanelDrag(){
@@ -1371,7 +1374,8 @@ function displaySnapshot(){
     jitter: document.getElementById('jitterChk').checked,
     drag: document.getElementById('dragChk').checked,
     addPoint: document.getElementById('addChk').checked,
-    mapLegend: document.getElementById('mapLegendChk').checked
+    mapLegend: document.getElementById('mapLegendChk').checked,
+    mapLegendMinimized: S.legendPanelMinimized
   };
 }
 function applyDisplaySnapshot(d){
@@ -1386,6 +1390,7 @@ function applyDisplaySnapshot(d){
   set('gratChk', d.grat, true); set('jitterChk', d.jitter, true);
   set('dragChk', d.drag, true); set('addChk', d.addPoint, true);
   set('mapLegendChk', d.mapLegend, true);
+  if (d.mapLegendMinimized != null) setMapLegendMinimized(d.mapLegendMinimized);
   onDisplayChange();
 }
 function buildVisualizationConfig(){
